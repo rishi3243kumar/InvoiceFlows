@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { isConnected, requestAccess, getAddress } from '@stellar/freighter-api';
+import { useToast } from '@/components/Toast';
 
 const themes = [
   { name: 'Cosmic Cyan 🪐', primary: '#06b6d4', glow: 'rgba(6, 182, 212, 0.4)', gold: '#f59e0b', goldGlow: 'rgba(245, 158, 11, 0.4)', purple: '#a855f7', purpleGlow: 'rgba(168, 85, 247, 0.3)', bg: '#03050c', bgGrad: 'radial-gradient(circle at 50% 50%, #080f26 0%, #03050c 100%)' },
@@ -15,6 +16,7 @@ const themes = [
 export default function Header() {
   const [address, setAddress] = useState<string | null>(null);
   const [activeTheme, setActiveTheme] = useState(0);
+  const { showToast } = useToast();
 
   useEffect(() => {
     checkConnection();
@@ -42,12 +44,14 @@ export default function Header() {
         const { address: pk } = await requestAccess() as any;
         if (pk) {
           setAddress(pk);
+          showToast('Wallet Connected Successfully!', 'success');
         }
       } else {
-        alert('Please install Freighter Wallet');
+        showToast('Please install Freighter Wallet', 'error');
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      showToast(e.message || 'Failed to connect wallet', 'error');
     }
   };
 
