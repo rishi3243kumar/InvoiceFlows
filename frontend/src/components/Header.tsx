@@ -98,11 +98,17 @@ export default function Header() {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         {/* Theme Selector */}
-        <div style={{ position: 'relative' }}>
-          <select 
-            value={activeTheme} 
-            onChange={handleThemeChange} 
-            className="form-input" 
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: themes[activeTheme]?.primary, transition: 'all 0.3s', boxShadow: `0 0 8px ${themes[activeTheme]?.primary}` }}></span>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: themes[activeTheme]?.gold, transition: 'all 0.3s', boxShadow: `0 0 8px ${themes[activeTheme]?.gold}` }}></span>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: themes[activeTheme]?.purple, transition: 'all 0.3s', boxShadow: `0 0 8px ${themes[activeTheme]?.purple}` }}></span>
+          </div>
+          <div style={{ position: 'relative' }}>
+            <select 
+              value={activeTheme} 
+              onChange={handleThemeChange} 
+              className="form-input" 
             style={{ 
               padding: '0.5rem 1.8rem 0.5rem 1rem', 
               fontSize: '0.85rem', 
