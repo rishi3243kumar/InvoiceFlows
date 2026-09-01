@@ -6,8 +6,10 @@ import { getAddress, isConnected } from '@stellar/freighter-api';
 import { CONTRACTS, loadAccount, server, submitTransaction, TESTNET_NETWORK_PASSPHRASE } from '@/lib/soroban';
 import * as StellarSdk from '@stellar/stellar-sdk';
 import { Contract } from '@stellar/stellar-sdk';
+import { useToast } from '@/components/Toast';
 
 export default function VerifyInvoice() {
+  const { showToast } = useToast();
   const params = useParams();
   const id = params?.id as string;
 
