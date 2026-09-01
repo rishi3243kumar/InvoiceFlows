@@ -18,6 +18,13 @@ export default function SubmitInvoice() {
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState('');
 
+  const copyVerificationLink = () => {
+    if (!successTx) return;
+    const link = `${window.location.origin}/verify/${successTx}`;
+    navigator.clipboard.writeText(link);
+    showToast('Client Verification Link copied to clipboard! 📋', 'success');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
