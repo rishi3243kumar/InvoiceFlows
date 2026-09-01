@@ -80,6 +80,40 @@ export default function VerifyInvoice() {
           You have been asked to verify invoice hash <strong>{id?.substring(0, 16)}...</strong>. 
           By confirming this, you acknowledge the invoice is authentic and you intend to pay it on the due date.
         </p>
+
+        {/* Invoice Status Stepper Timeline */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', position: 'relative', padding: '0 1rem' }}>
+          <div style={{ position: 'absolute', top: '15px', left: '2rem', right: '2rem', height: '2px', background: 'var(--surface-border)', zIndex: 0 }}></div>
+          <div style={{ position: 'absolute', top: '15px', left: '2rem', width: success ? '66%' : '0%', height: '2px', background: 'var(--primary-cyan)', transition: 'all 0.5s ease', zIndex: 0 }}></div>
+
+          {[
+            { label: 'Registered', done: true },
+            { label: 'Verified', done: success },
+            { label: 'Tokenized', done: success },
+            { label: 'Settled', done: false }
+          ].map((step, idx) => (
+            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, position: 'relative' }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: step.done ? 'var(--primary-cyan)' : '#0f172a',
+                border: `2px solid ${step.done ? 'var(--primary-cyan)' : 'var(--surface-border)'}`,
+                boxShadow: step.done ? 'var(--cyan-glow)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.85rem',
+                color: step.done ? '#03050c' : '#64748b',
+                fontWeight: 700,
+                transition: 'all 0.3s'
+              }}>
+                {step.done ? '✓' : idx + 1}
+              </div>
+              <span style={{ fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, color: step.done ? '#fff' : '#64748b' }}>{step.label}</span>
+            </div>
+          ))}
+        </div>
         
         {error && (
           <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#ef4444', borderRadius: '0.5rem', marginBottom: '1.5rem', textAlign: 'left' }}>
