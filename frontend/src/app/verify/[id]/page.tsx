@@ -6,6 +6,7 @@ import { getAddress, isConnected } from '@stellar/freighter-api';
 import { CONTRACTS, loadAccount, server, submitTransaction, TESTNET_NETWORK_PASSPHRASE } from '@/lib/soroban';
 import * as StellarSdk from '@stellar/stellar-sdk';
 import { Contract } from '@stellar/stellar-sdk';
+import ReputationRing from '@/components/ReputationRing';
 import { useToast } from '@/components/Toast';
 
 export default function VerifyInvoice() {
