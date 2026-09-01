@@ -187,20 +187,36 @@ export default function Header() {
         {address ? (
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             {balance !== null && (
-              <span style={{ 
-                fontSize: '0.85rem', 
-                fontWeight: 700, 
-                color: 'var(--primary-cyan)', 
-                background: 'rgba(6, 182, 212, 0.1)', 
-                border: '1px solid rgba(6, 182, 212, 0.2)',
-                padding: '0.45rem 0.75rem',
-                borderRadius: '0.5rem',
-                marginRight: '0.25rem', 
-                fontFamily: 'Share Tech Mono, monospace',
-                boxShadow: '0 0 10px rgba(6, 182, 212, 0.1)'
-              }}>
-                {balance} XLM
-              </span>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ 
+                  fontSize: '0.85rem', 
+                  fontWeight: 700, 
+                  color: 'var(--primary-cyan)', 
+                  background: 'rgba(6, 182, 212, 0.1)', 
+                  border: '1px solid rgba(6, 182, 212, 0.2)',
+                  padding: '0.45rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  fontFamily: 'Share Tech Mono, monospace',
+                  boxShadow: '0 0 10px rgba(6, 182, 212, 0.1)'
+                }}>
+                  {balance} XLM
+                </span>
+                <button 
+                  onClick={claimFaucet} 
+                  disabled={funding}
+                  className="btn btn-outline" 
+                  style={{ 
+                    padding: '0.45rem 0.75rem', 
+                    fontSize: '0.75rem', 
+                    color: 'var(--glowing-gold)',
+                    borderColor: 'var(--gold-glow)',
+                    background: 'rgba(245, 158, 11, 0.05)',
+                    height: 'auto'
+                  }}
+                >
+                  {funding ? 'Funding...' : 'Claim 10k XLM 🚰'}
+                </button>
+              </div>
             )}
             <button className="btn btn-cyan" style={{ padding: '0.65rem 1.4rem', fontSize: '0.85rem', pointerEvents: 'none' }}>
               <span>🔑</span> {`${address.substring(0, 5)}...${address.substring(address.length - 4)}`}
@@ -215,6 +231,57 @@ export default function Header() {
           </button>
         )}
       </div>
+
+      {/* Freighter Wallet Install Prompt Modal */}
+      {showInstallModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(3, 5, 12, 0.85)',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div className="card" style={{
+            maxWidth: '450px',
+            width: '90%',
+            textAlign: 'center',
+            border: '1px solid var(--surface-border)',
+            boxShadow: '0 0 40px var(--purple-glow)',
+            animation: 'slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}>
+            <span style={{ fontSize: '3rem', display: 'block', marginBottom: '1rem' }}>🛸</span>
+            <h2 style={{ marginBottom: '0.75rem', fontWeight: 800 }}>Freighter Wallet Required</h2>
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+              InvoiceFlow requires the Freighter browser extension to securely sign transactions on the Stellar Network.
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <a 
+                href="https://www.freighter.app/" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="btn btn-cyan" 
+                style={{ justifyContent: 'center' }}
+              >
+                📥 Get Freighter Extension
+              </a>
+              <button 
+                onClick={() => setShowInstallModal(false)} 
+                className="btn btn-outline" 
+                style={{ justifyContent: 'center' }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
