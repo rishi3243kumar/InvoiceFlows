@@ -55,11 +55,6 @@ export default function SubmitInvoice() {
       setSuccessTx(result.hash);
       showToast('Invoice registered successfully on Stellar Trust Layer!', 'success');
       
-      // Show success briefly, then redirect
-      setTimeout(() => {
-        window.location.href = `/verify/${result.hash}`;
-      }, 3000);
-      
     } catch (err: any) {
       console.error(err);
       let errMsg = err.message || 'Failed to submit invoice to blockchain.';
