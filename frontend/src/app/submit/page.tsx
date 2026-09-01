@@ -46,6 +46,7 @@ export default function SubmitInvoice() {
   const [clientEmail, setClientEmail] = useState('');
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [discountRate, setDiscountRate] = useState(5);
 
   const copyVerificationLink = () => {
     if (!successTx) return;
