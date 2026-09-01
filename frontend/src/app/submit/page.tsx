@@ -5,8 +5,10 @@ import { getAddress, isConnected } from '@stellar/freighter-api';
 import { CONTRACTS, loadAccount, server, submitTransaction, TESTNET_NETWORK_PASSPHRASE } from '@/lib/soroban';
 import * as StellarSdk from '@stellar/stellar-sdk';
 import { Contract } from '@stellar/stellar-sdk';
+import { useToast } from '@/components/Toast';
 
 export default function SubmitInvoice() {
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successTx, setSuccessTx] = useState<string | null>(null);
@@ -51,6 +53,7 @@ export default function SubmitInvoice() {
       const result = await submitTransaction(txBuilder, pubKey);
       
       setSuccessTx(result.hash);
+      showToast('Invoice registered successfully on Stellar Trust Layer!', 'success');
       
       // Show success briefly, then redirect
       setTimeout(() => {
@@ -59,11 +62,12 @@ export default function SubmitInvoice() {
       
     } catch (err: any) {
       console.error(err);
+      let errMsg = err.message || 'Failed to submit invoice to blockchain.';
       if (err.message?.includes('Invoice already exists')) {
-        setError('Duplicate invoice detected! This invoice has already been registered on the blockchain.');
-      } else {
-        setError(err.message || 'Failed to submit invoice to blockchain.');
+        errMsg = 'Duplicate invoice detected! Already registered on the blockchain.';
       }
+      setError(errMsg);
+      showToast(errMsg, 'error');
     } finally {
       setLoading(false);
     }
