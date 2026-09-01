@@ -17,6 +17,8 @@ export default function Header() {
   const [address, setAddress] = useState<string | null>(null);
   const [balance, setBalance] = useState<string | null>(null);
   const [activeTheme, setActiveTheme] = useState(0);
+  const [showInstallModal, setShowInstallModal] = useState(false);
+  const [funding, setFunding] = useState(false);
   const { showToast } = useToast();
 
   const fetchBalance = async (pk: string) => {
@@ -30,6 +32,25 @@ export default function Header() {
       }
     } catch {
       setBalance('0.00');
+    }
+  };
+
+  const claimFaucet = async () => {
+    if (!address) return;
+    setFunding(true);
+    showToast('Requesting Friendbot XLM funding...', 'info');
+    try {
+      const res = await fetch(`https://friendbot.stellar.org/?addr=${address}`);
+      if (res.ok) {
+        showToast('Successfully funded wallet with 10,000 XLM! 🚀', 'success');
+        fetchBalance(address);
+      } else {
+        throw new Error();
+      }
+    } catch {
+      showToast('Failed to claim Testnet XLM. Wallet may already be funded.', 'error');
+    } finally {
+      setFunding(false);
     }
   };
 
