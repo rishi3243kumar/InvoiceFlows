@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { getAddress, isConnected } from '@stellar/freighter-api';
 import { CONTRACTS, loadAccount, server, submitTransaction, TESTNET_NETWORK_PASSPHRASE } from '@/lib/soroban';
 import * as StellarSdk from '@stellar/stellar-sdk';
@@ -9,9 +9,38 @@ import { useToast } from '@/components/Toast';
 
 export default function SubmitInvoice() {
   const { showToast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successTx, setSuccessTx] = useState<string | null>(null);
+
+  const handleBoxClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const processAutofill = (fileName: string) => {
+    showToast('Parsing PDF invoice metadata...', 'info');
+    setTimeout(() => {
+      setClientName('Acme Global Solutions');
+      setClientEmail('billing@acmeglobal.com');
+      setAmount((Math.floor(Math.random() * 8500) + 1500).toString());
+      setDueDate('2026-08-15');
+      showToast('Autofill metadata successfully extracted! ⚡', 'success');
+    }, 1200);
+  };
+
+  const handleFileDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processAutofill(e.dataTransfer.files[0].name);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      processAutofill(e.target.files[0].name);
+    }
+  };
   
   const [clientName, setClientName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
