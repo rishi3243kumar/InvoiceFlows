@@ -2,6 +2,10 @@
 
 InvoiceFlow is a trust-verified invoice financing protocol for freelancers and small businesses, built on Stellar. By combining deterministic invoice hashing for double-financing prevention with dynamic on-chain credit reputation tracking, InvoiceFlow creates a secure, risk-transparent ecosystem for real-world asset (RWA) invoice tokenization.
 
+### Live Deployment Info
+- **Network**: Stellar Testnet
+- **Status**: Live Contract Integrations & Frontend Wallet Hooked
+
 ---
 
 ## Why Stellar Specifically?
