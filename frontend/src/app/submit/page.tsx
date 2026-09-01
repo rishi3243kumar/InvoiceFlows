@@ -148,6 +148,37 @@ export default function SubmitInvoice() {
       )}
 
       <div className="panel">
+        {/* PDF Autofill Dropzone */}
+        <div 
+          onClick={handleBoxClick}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleFileDrop}
+          style={{
+            border: '2px dashed var(--surface-border)',
+            borderRadius: '1rem',
+            padding: '1.75rem',
+            textAlign: 'center',
+            marginBottom: '2rem',
+            cursor: 'pointer',
+            background: 'rgba(6, 182, 212, 0.02)',
+            transition: 'all 0.3s ease',
+            boxShadow: 'inset 0 0 15px rgba(6, 182, 212, 0.05)'
+          }}
+        >
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileSelect} 
+            accept=".pdf" 
+            style={{ display: 'none' }} 
+          />
+          <span style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}>📄</span>
+          <h4 style={{ margin: 0, fontWeight: 700, color: 'var(--text-color)' }}>Autofill Invoice from PDF</h4>
+          <p style={{ margin: '6px 0 0 0', fontSize: '0.85rem', color: '#94a3b8' }}>
+            Drag & drop your invoice PDF here, or <span style={{ color: 'var(--primary-cyan)', textDecoration: 'underline' }}>browse files</span>
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">Client Name / ID</label>
