@@ -55,6 +55,7 @@ export default function VerifyInvoice() {
       const result = await submitTransaction(txBuilder, pubKey);
       
       setSuccess(true);
+      showToast('Invoice verified and RWA Token minted on Stellar!', 'success');
       
       // Redirect to marketplace
       setTimeout(() => {
@@ -63,7 +64,9 @@ export default function VerifyInvoice() {
       
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to mint token on-chain.');
+      const errMsg = err.message || 'Failed to mint token on-chain.';
+      setError(errMsg);
+      showToast(errMsg, 'error');
     } finally {
       setLoading(false);
     }
