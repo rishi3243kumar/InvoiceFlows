@@ -201,6 +201,53 @@ export default function SubmitInvoice() {
             <input type="date" className="form-input" value={dueDate} onChange={e => setDueDate(e.target.value)} required />
           </div>
 
+          {/* Dynamic Yield Calculator Slider */}
+          <div className="form-group" style={{ marginTop: '1.5rem', background: 'rgba(255, 255, 255, 0.02)', padding: '1.25rem', borderRadius: '0.75rem', border: '1px solid var(--surface-border)' }}>
+            <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Investor Yield Discount Rate</span>
+              <strong style={{ color: 'var(--primary-cyan)' }}>{discountRate}%</strong>
+            </label>
+            <input 
+              type="range" 
+              min="1" 
+              max="15" 
+              value={discountRate} 
+              onChange={e => setDiscountRate(parseInt(e.target.value))} 
+              style={{ width: '100%', accentColor: 'var(--primary-cyan)', margin: '0.75rem 0', cursor: 'pointer' }}
+            />
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem' }}>
+              <div>
+                <span style={{ color: '#64748b' }}>Investor Earns:</span>
+                <div style={{ fontWeight: 700, color: 'var(--glowing-gold)', fontSize: '1rem' }}>
+                  ${((parseFloat(amount) || 0) * (discountRate / 100)).toFixed(2)} USDC
+                </div>
+              </div>
+              <div>
+                <span style={{ color: '#64748b' }}>Freelancer Receives:</span>
+                <div style={{ fontWeight: 700, color: 'var(--primary-cyan)', fontSize: '1rem' }}>
+                  ${((parseFloat(amount) || 0) * (1 - discountRate / 100)).toFixed(2)} USDC
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Gas Fee Transparency Display */}
+          <div style={{ marginTop: '1.5rem', padding: '0.75rem 1rem', background: 'rgba(168, 85, 247, 0.05)', borderRadius: '0.5rem', border: '1px solid rgba(168, 85, 247, 0.15)', fontSize: '0.75rem', color: '#94a3b8' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+              <span>Stellar Transaction Base Fee:</span>
+              <span style={{ fontFamily: 'Share Tech Mono, monospace', color: 'var(--nebula-purple)' }}>100 Stroops</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+              <span>Soroban Gas Units (Simulated):</span>
+              <span style={{ fontFamily: 'Share Tech Mono, monospace', color: 'var(--nebula-purple)' }}>4,520,110</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#fff', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '0.25rem', marginTop: '0.25rem' }}>
+              <span>Est. Network Fee:</span>
+              <span style={{ fontFamily: 'Share Tech Mono, monospace', color: 'var(--primary-cyan)' }}>0.0075 XLM</span>
+            </div>
+          </div>
+
           <div className="form-group" style={{ marginTop: '2rem' }}>
             <button type="submit" className="btn btn-cyan" style={{ width: '100%', opacity: loading ? 0.7 : 1 }} disabled={loading}>
               {loading ? 'Processing on Stellar...' : 'Register on Trust Layer'}
