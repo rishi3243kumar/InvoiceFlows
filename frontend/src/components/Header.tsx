@@ -85,7 +85,7 @@ export default function Header() {
           showToast('Wallet Connected Successfully!', 'success');
         }
       } else {
-        showToast('Please install Freighter Wallet', 'error');
+        setShowInstallModal(true);
       }
     } catch (e: any) {
       console.error(e);
