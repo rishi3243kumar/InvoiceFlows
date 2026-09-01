@@ -158,8 +158,8 @@ export default function Header() {
             fontSize: '0.7rem',
             color: '#64748b'
           }}>
-            ▼
-          </div>
+        </div>
+        </div>
         </div>
 
         {/* Wallet controls */}
