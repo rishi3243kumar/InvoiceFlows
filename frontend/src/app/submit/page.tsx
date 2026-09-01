@@ -94,9 +94,27 @@ export default function SubmitInvoice() {
       )}
 
       {successTx && (
-        <div style={{ padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10b981', color: '#10b981', borderRadius: '0.5rem', marginBottom: '1.5rem' }}>
-          ✅ Success! Tx Hash: <a href={`https://stellar.expert/explorer/testnet/tx/${successTx}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>{successTx.substring(0, 10)}...</a>
-          <br/>Redirecting to verification...
+        <div className="card" style={{ marginBottom: '2rem', border: '1px solid #10b981', boxShadow: '0 0 25px rgba(16, 185, 129, 0.25)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '1.5rem' }}>✅</span>
+            <div>
+              <h3 style={{ margin: 0, color: '#10b981' }}>Invoice Registered on Stellar!</h3>
+              <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#94a3b8' }}>Transaction hash successfully written to ledger.</p>
+            </div>
+          </div>
+          
+          <div style={{ background: 'rgba(0, 0, 0, 0.2)', padding: '0.75rem', borderRadius: '0.5rem', fontSize: '0.85rem', fontFamily: 'Share Tech Mono, monospace', wordBreak: 'break-all' }}>
+            <strong>Hash:</strong> <a href={`https://stellar.expert/explorer/testnet/tx/${successTx}`} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-cyan)', textDecoration: 'underline' }}>{successTx}</a>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+            <button className="btn btn-outline" onClick={copyVerificationLink} style={{ flex: 1, padding: '0.65rem 1rem', fontSize: '0.85rem' }}>
+              <span>📋</span> Copy Shareable Link
+            </button>
+            <a href={`/verify/${successTx}`} className="btn btn-cyan" style={{ flex: 1, padding: '0.65rem 1rem', fontSize: '0.85rem', justifyContent: 'center' }}>
+              <span>🛸</span> Verify Invoice
+            </a>
+          </div>
         </div>
       )}
 
