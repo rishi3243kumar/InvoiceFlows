@@ -15,8 +15,23 @@ const themes = [
 
 export default function Header() {
   const [address, setAddress] = useState<string | null>(null);
+  const [balance, setBalance] = useState<string | null>(null);
   const [activeTheme, setActiveTheme] = useState(0);
   const { showToast } = useToast();
+
+  const fetchBalance = async (pk: string) => {
+    try {
+      const res = await fetch(`https://horizon-testnet.stellar.org/accounts/${pk}`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const native = data.balances.find((b: any) => b.asset_type === 'native');
+      if (native) {
+        setBalance(parseFloat(native.balance).toFixed(2));
+      }
+    } catch {
+      setBalance('0.00');
+    }
+  };
 
   useEffect(() => {
     checkConnection();
@@ -35,6 +50,7 @@ export default function Header() {
     if (await isConnected()) {
       const { address: pk } = await getAddress() as any;
       setAddress(pk);
+      fetchBalance(pk);
     }
   };
 
@@ -44,6 +60,7 @@ export default function Header() {
         const { address: pk } = await requestAccess() as any;
         if (pk) {
           setAddress(pk);
+          fetchBalance(pk);
           showToast('Wallet Connected Successfully!', 'success');
         }
       } else {
@@ -57,6 +74,7 @@ export default function Header() {
 
   const disconnectWallet = () => {
     setAddress(null);
+    setBalance(null);
   };
 
   const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -147,6 +165,22 @@ export default function Header() {
         {/* Wallet controls */}
         {address ? (
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            {balance !== null && (
+              <span style={{ 
+                fontSize: '0.85rem', 
+                fontWeight: 700, 
+                color: 'var(--primary-cyan)', 
+                background: 'rgba(6, 182, 212, 0.1)', 
+                border: '1px solid rgba(6, 182, 212, 0.2)',
+                padding: '0.45rem 0.75rem',
+                borderRadius: '0.5rem',
+                marginRight: '0.25rem', 
+                fontFamily: 'Share Tech Mono, monospace',
+                boxShadow: '0 0 10px rgba(6, 182, 212, 0.1)'
+              }}>
+                {balance} XLM
+              </span>
+            )}
             <button className="btn btn-cyan" style={{ padding: '0.65rem 1.4rem', fontSize: '0.85rem', pointerEvents: 'none' }}>
               <span>🔑</span> {`${address.substring(0, 5)}...${address.substring(address.length - 4)}`}
             </button>
