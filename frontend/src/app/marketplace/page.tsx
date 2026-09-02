@@ -22,6 +22,7 @@ export default function Marketplace() {
   const [invoices, setInvoices] = useState(DEFAULT_INVOICES);
   const [filterTier, setFilterTier] = useState('ALL'); // ALL, A, B
   const [sortBy, setSortBy] = useState('YIELD'); // YIELD, PRICE
+  const [expandedInvoiceId, setExpandedInvoiceId] = useState<string | null>(null);
   const [tokenData, setTokenData] = useState<any>(null);
 
   const handleLookup = async (e: React.FormEvent) => {
