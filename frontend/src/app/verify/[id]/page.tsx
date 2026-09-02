@@ -128,9 +128,16 @@ export default function VerifyInvoice() {
           </div>
         )}
 
-        <div style={{ backgroundColor: 'rgba(5, 7, 15, 0.8)', border: '1px solid var(--surface-border)', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '2rem', textAlign: 'left' }}>
-          <div style={{ marginBottom: '0.5rem' }}><strong>Invoice Hash:</strong> {id}</div>
-          <div style={{ marginBottom: '0.5rem', color: 'var(--primary-cyan)' }}><strong>Network:</strong> Stellar Testnet</div>
+        <div style={{ backgroundColor: 'rgba(5, 7, 15, 0.8)', border: '1px solid var(--surface-border)', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '2rem', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ marginBottom: '0.5rem', wordBreak: 'break-all', fontSize: '0.9rem' }}><strong>Invoice Hash:</strong> {id}</div>
+            <div style={{ marginBottom: '0.5rem', color: 'var(--primary-cyan)', fontSize: '0.9rem' }}><strong>Network:</strong> Stellar Testnet</div>
+            <div style={{ color: 'var(--glowing-gold)', fontSize: '0.9rem' }}><strong>Simulated Risk Tier:</strong> Low Risk</div>
+          </div>
+          <div style={{ textAlign: 'center', marginLeft: '1rem' }}>
+            <div style={{ fontSize: '0.65rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Reputation Score</div>
+            <ReputationRing score={98} size={65} />
+          </div>
         </div>
 
         <button onClick={handleVerify} className="btn btn-cyan" style={{ width: '100%', fontSize: '1.1rem', opacity: loading ? 0.7 : 1 }} disabled={loading}>
