@@ -83,4 +83,5 @@ Additionally, Stellar's built-in **Asset Anchors** allow direct integration into
 2. **Custom Cosmic Toast Notifications**: Animated glassmorphic alert popups displaying contextual success, error, and info updates during transaction routines.
 3. **Glassmorphic Glow Cards**: Premium design layout styling with translucent backgrounds, neon borders, and smooth zoom-glow hover transformations.
 4. **Theme Preset Preview Color Dots**: Color indicators in the theme selector demonstrating the primary color configurations of the selectable cosmic themes.
+5. **Live Stellar Testnet Balance Indicator**: Automatically queries the Horizon Stellar API to retrieve and display connected wallet balances in real-time.
 
