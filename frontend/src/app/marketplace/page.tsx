@@ -5,6 +5,7 @@ import { getAddress, isConnected } from '@stellar/freighter-api';
 import { CONTRACTS, loadAccount, server, submitTransaction, TESTNET_NETWORK_PASSPHRASE } from '@/lib/soroban';
 import * as StellarSdk from '@stellar/stellar-sdk';
 import { Contract } from '@stellar/stellar-sdk';
+import ReputationRing from '@/components/ReputationRing';
 
 const DEFAULT_INVOICES = [
   { id: '1092', amount: 15000, riskScore: 98, price: 14580, yield: '9.4%', client: 'Acme Corp', duration: 30, tier: 'A' },
