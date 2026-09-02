@@ -74,3 +74,8 @@ Additionally, Stellar's built-in **Asset Anchors** allow direct integration into
 
 1. **Contracts**: `cd contracts && cargo build --target wasm32-unknown-unknown --release`
 2. **Frontend**: `cd frontend && npm install && npm run dev`
+
+---
+
+## Implemented Enhancements
+
