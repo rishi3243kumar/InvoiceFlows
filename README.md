@@ -81,4 +81,5 @@ Additionally, Stellar's built-in **Asset Anchors** allow direct integration into
 
 1. **Interactive Starfield Background**: An immersive custom particle canvas component generating 120 dynamic stellar particles that react smoothly to pointer movements.
 2. **Custom Cosmic Toast Notifications**: Animated glassmorphic alert popups displaying contextual success, error, and info updates during transaction routines.
+3. **Glassmorphic Glow Cards**: Premium design layout styling with translucent backgrounds, neon borders, and smooth zoom-glow hover transformations.
 
