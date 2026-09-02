@@ -88,4 +88,5 @@ Additionally, Stellar's built-in **Asset Anchors** allow direct integration into
 7. **Stellar Friendbot Testnet Faucet Tool**: Integrated testnet faucet allowing developers and testers to fund their Stellar Testnet accounts directly from the application interface.
 8. **Gas Fee Transparency Display**: Live breakdown of network charges during invoice creation showing comparison metrics between Stellar and other blockchains.
 9. **Shareable Verification Clipboard Copier**: One-click clipboard copy utility to share smart contract registry invoice confirmation links.
+10. **PDF Metadata Autofill Extractor**: Local drag-and-drop system extracting invoice PDF values (client, amount, dates) to autofill creation fields.
 
