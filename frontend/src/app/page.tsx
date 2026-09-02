@@ -75,7 +75,7 @@ export default function Home() {
             <div style={{ background: 'rgba(5, 7, 15, 0.6)', border: '1px solid var(--surface-border)', borderRadius: '0.75rem', padding: '1rem' }}>
               <span className="tech-label" style={{ fontSize: '0.7rem' }}>COSMIC PORTFOLIO VALUE</span>
               <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--glowing-gold)', margin: '0.25rem 0' }}>
-                $412,850.50 USDC
+                <CountUp end={412850.50} decimals={2} prefix="$" /> USDC
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#10b981' }}>
                 <span>▲ +14.2% APY</span>
