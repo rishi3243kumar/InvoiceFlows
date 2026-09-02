@@ -6,12 +6,21 @@ import { CONTRACTS, loadAccount, server, submitTransaction, TESTNET_NETWORK_PASS
 import * as StellarSdk from '@stellar/stellar-sdk';
 import { Contract } from '@stellar/stellar-sdk';
 
+const DEFAULT_INVOICES = [
+  { id: '1092', amount: 15000, riskScore: 98, price: 14580, yield: '9.4%', client: 'Acme Corp', duration: 30, tier: 'A' },
+  { id: '8839', amount: 4200, riskScore: 92, price: 3990, yield: '11.2%', client: 'Globex Inc', duration: 45, tier: 'A' },
+  { id: '4720', amount: 8000, riskScore: 78, price: 7440, yield: '14.0%', client: 'Umbrella Corp', duration: 60, tier: 'B' }
+];
+
 export default function Marketplace() {
   const [tokenId, setTokenId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const [invoices, setInvoices] = useState(DEFAULT_INVOICES);
+  const [filterTier, setFilterTier] = useState('ALL'); // ALL, A, B
+  const [sortBy, setSortBy] = useState('YIELD'); // YIELD, PRICE
   const [tokenData, setTokenData] = useState<any>(null);
 
   const handleLookup = async (e: React.FormEvent) => {
