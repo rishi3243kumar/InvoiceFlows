@@ -34,13 +34,21 @@ export default function Marketplace() {
       // Here we simulate fetching the token data to keep UI responsive.
       // If we had the real contract deployed, we'd use contract.call('get_token') here.
       
-      setTokenData({
-        id: tokenId,
-        amount: 5000,
-        riskScore: 98,
-        price: 4850,
-        yield: '3.09%'
-      });
+      const existing = invoices.find(inv => inv.id === tokenId);
+      if (existing) {
+        setTokenData(existing);
+      } else {
+        setTokenData({
+          id: tokenId,
+          amount: 5000,
+          riskScore: 95,
+          price: 4850,
+          yield: '9.8%',
+          client: 'Dynamic Corp',
+          duration: 30,
+          tier: 'A'
+        });
+      }
       
     } catch (err: any) {
       setError(err.message);
