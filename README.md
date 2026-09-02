@@ -87,4 +87,5 @@ Additionally, Stellar's built-in **Asset Anchors** allow direct integration into
 6. **Freighter Install Prompt Modal UI**: A stunning, custom modal overlay prompting users to acquire Freighter wallet extension if no connector is detected during wallet connections.
 7. **Stellar Friendbot Testnet Faucet Tool**: Integrated testnet faucet allowing developers and testers to fund their Stellar Testnet accounts directly from the application interface.
 8. **Gas Fee Transparency Display**: Live breakdown of network charges during invoice creation showing comparison metrics between Stellar and other blockchains.
+9. **Shareable Verification Clipboard Copier**: One-click clipboard copy utility to share smart contract registry invoice confirmation links.
 
