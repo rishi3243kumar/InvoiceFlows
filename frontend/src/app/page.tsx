@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import CountUp from '@/components/CountUp';
 
 export default function Home() {
   return (
