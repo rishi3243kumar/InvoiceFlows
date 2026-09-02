@@ -84,4 +84,5 @@ Additionally, Stellar's built-in **Asset Anchors** allow direct integration into
 3. **Glassmorphic Glow Cards**: Premium design layout styling with translucent backgrounds, neon borders, and smooth zoom-glow hover transformations.
 4. **Theme Preset Preview Color Dots**: Color indicators in the theme selector demonstrating the primary color configurations of the selectable cosmic themes.
 5. **Live Stellar Testnet Balance Indicator**: Automatically queries the Horizon Stellar API to retrieve and display connected wallet balances in real-time.
+6. **Freighter Install Prompt Modal UI**: A stunning, custom modal overlay prompting users to acquire Freighter wallet extension if no connector is detected during wallet connections.
 
