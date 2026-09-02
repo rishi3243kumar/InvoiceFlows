@@ -90,4 +90,5 @@ Additionally, Stellar's built-in **Asset Anchors** allow direct integration into
 9. **Shareable Verification Clipboard Copier**: One-click clipboard copy utility to share smart contract registry invoice confirmation links.
 10. **PDF Metadata Autofill Extractor**: Local drag-and-drop system extracting invoice PDF values (client, amount, dates) to autofill creation fields.
 11. **Dynamic Yield Calculator Slider**: Real-time slider tool allowing users to calculate investment yield returns, interest rate discounts, and lockup duration gains.
+12. **Invoice Status Timeline Stepper**: Step-by-step cosmic stepper demonstrating the current stage of an invoice from registration to client verification, funding, and final settlement.
 
