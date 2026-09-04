@@ -18,6 +18,7 @@ export default function Header() {
   const [balance, setBalance] = useState<string | null>(null);
   const [activeTheme, setActiveTheme] = useState(0);
   const [showInstallModal, setShowInstallModal] = useState(false);
+  const [showGuideModal, setShowGuideModal] = useState(false);
   const [funding, setFunding] = useState(false);
   const { showToast } = useToast();
 
@@ -133,6 +134,13 @@ export default function Header() {
         <a href="#about" className="nav-link">
           <span>🌌</span> ABOUT
         </a>
+        <button 
+          onClick={() => setShowGuideModal(true)} 
+          className="nav-link" 
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+        >
+          <span>💡</span> GUIDE
+        </button>
       </nav>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -279,6 +287,62 @@ export default function Header() {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Cosmic Guide Modal */}
+      {showGuideModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(3, 5, 12, 0.85)',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div className="card" style={{
+            maxWidth: '550px',
+            width: '90%',
+            border: '1px solid var(--surface-border)',
+            boxShadow: '0 0 40px var(--cyan-glow)',
+            animation: 'slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}>
+            <h2 style={{ marginBottom: '1.25rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff' }}>
+              <span>🚀</span> Cosmic Guide: How InvoiceFlow Works
+            </h2>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: 1.6 }}>
+              <div>
+                <strong style={{ color: 'var(--primary-cyan)' }}>1. Submit Invoice</strong>
+                <p style={{ color: '#94a3b8', margin: '0.25rem 0 0 0' }}>Upload your invoice PDF. Our intelligent extractor parses the metadata automatically.</p>
+              </div>
+              <div>
+                <strong style={{ color: 'var(--glowing-gold)' }}>2. Yield Calibration</strong>
+                <p style={{ color: '#94a3b8', margin: '0.25rem 0 0 0' }}>Adjust the discount rate to calibrate your investor return based on the client reputation ring score.</p>
+              </div>
+              <div>
+                <strong style={{ color: 'var(--nebula-purple)' }}>3. Tokenize & Mint</strong>
+                <p style={{ color: '#94a3b8', margin: '0.25rem 0 0 0' }}>Sign with Freighter wallet to mint your invoice as a secure, unique token on the Stellar trust registry.</p>
+              </div>
+              <div>
+                <strong style={{ color: '#10b981' }}>4. Liquidity & Repayment</strong>
+                <p style={{ color: '#94a3b8', margin: '0.25rem 0 0 0' }}>Investors buy the invoice at a discount in the marketplace, and the client repays to settle on-chain.</p>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => setShowGuideModal(false)} 
+              className="btn btn-cyan" 
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              Start Exploring!
+            </button>
           </div>
         </div>
       )}
