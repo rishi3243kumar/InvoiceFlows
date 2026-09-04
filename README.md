@@ -1,31 +1,53 @@
 # 🌘 INVOICEFLOW: Zero-Knowledge Privacy-Preserving Invoice Trust Protocol
 
-> **Deployed on Midnight Network (Preprod Testnet)**  
+[![CI/CD Pipeline](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/ci.yml/badge.svg)](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Midnight Network](https://img.shields.io/badge/Midnight-Preprod%20Testnet-purple)](https://midnight.network)
+
+> **Midnight Network Track:** Confidential Credentials & Private Allowlist Access (Selective Disclosure)  
 > **Smart Contract Language:** Compact v0.18+ (ZK-SNARKs)  
 > **Wallet Integration:** Midnight Lace DApp Connector (`window.midnight.mnLace`)  
 > **Architecture:** Poseidon Merkle Tree Commitments • Nullifiers • Proof $\to$ Balance $\to$ Submit Pipeline
 
 ---
 
-## 🚀 Overview
+## 🎯 Product Proposal & Problem Alignment
 
-**InvoiceFlow** is an institutional-grade, zero-knowledge invoice tokenization and decentralized financing protocol built on **Midnight Network**.
+### Selected Problem from Idea List: **Confidential Credentials & Private Allowlist Access**
 
-Traditional invoice financing faces two critical challenges:
-1. **Public Leakage of Confidential Financials:** Public blockchains expose customer identities, invoice amounts, profit margins, and cash flow schedules.
-2. **Double-Financing Fraud:** Unscrupulous actors submit the same unpaid invoice to multiple lenders simultaneously.
+**The Challenge:**
+In modern invoice factoring, businesses and freelancers borrow liquidity against pending invoices. However, standard public blockchains broadcast:
+1. **Customer Identities & Client Lists** (violating commercial NDAs).
+2. **Exact Invoice Amounts & Margins** (competitors can underbid).
+3. **Repayment Timelines & Cash Flows** (revealing liquidity status).
 
-InvoiceFlow resolves both challenges using **Midnight Compact Smart Contracts** and **Zero-Knowledge Proofs (zk-SNARKs)**:
-- **Private Off-Chain Witnesses:** Sensitive invoice amounts, customer names, and secret salts remain confidential on the client side.
-- **On-Chain Merkle Tree Commitments:** Invoices are registered as leaf commitments $H(\text{secret} \parallel \text{amount} \parallel \text{clientPubkey} \parallel \text{salt})$ inside a Compact Merkle root.
-- **Deterministic Nullifiers:** Settlements generate a cryptographically bound nullifier $N = H(\text{secret} \parallel \text{salt} \parallel \text{TAG})$. The Compact contract rejects any duplicate nullifiers, permanently eliminating double-financing without revealing which invoice was financed.
-- **Genuine DApp Connector & Execution Pipeline:** Employs the authentic 3-stage Midnight JS transaction pipeline: **Proof Generation (`proveAccess`) $\to$ Transaction Balancing (tDUST fees) $\to$ Preprod Network Submission (`submitTx`)**.
+Conversely, completely off-chain systems suffer from **Double-Financing Fraud**, where the same invoice is sold to multiple lenders simultaneously.
+
+**The Solution:**
+InvoiceFlow solves this through **Selective Disclosure** using Midnight's Compact privacy model:
+- The borrower proves **invoice validity, eligibility, and ownership** inside a zero-knowledge circuit without disclosing client name or financial figures.
+- The protocol prevents double-financing via **deterministic cryptographic nullifiers** stored in an on-chain spent map.
+- Settlements occur in shielded tokens (`tDUST`) with zero data leakage.
 
 ---
 
-## 🏛️ Midnight Compact Smart Contract Architecture
+## 🌓 Privacy Model: Selective Disclosure
 
-The protocol's core logic is implemented in [`contracts/compact/invoice_flow.compact`](file:///contracts/compact/invoice_flow.compact).
+Midnight’s core philosophy is **half light, half shadow**: exactly as much of your dApp is disclosed as you decide.
+
+| ☀️ What an Observer CAN Learn (Public On-Chain) | 🌑 What an Observer CANNOT Learn (Confidential / Private) |
+|---|---|
+| **Merkle Root Updates:** An invoice commitment hash $H(\text{secret} \parallel \text{amount} \parallel \text{clientPubkey} \parallel \text{salt})$ exists in the root. | **Invoice Face Value ($):** The dollar/token amount is never published on-chain. |
+| **Proof Validity:** Verification that the caller has a valid, authentic invoice authorized by the client. | **Customer Identity:** Corporate customer names and contact emails remain strictly off-chain. |
+| **Nullifier Status:** Whether an invoice nullifier $N$ is spent or unspent. | **Counterparty Linking:** No observer can link a settlement nullifier back to a specific creator or company. |
+| **Transaction Fees:** Gas/tDUST resource consumption required to settle state. | **Secret Salt & Witness Data:** Client-side private keys and witness paths never leave the local browser. |
+| **Verifiable Trust Score:** Upward reputation delta upon verified repayment. | **Profit Margins / Terms:** Discount rates and proprietary margins remain private between counter-parties. |
+
+---
+
+## 🏛️ Compact Smart Contract Architecture
+
+Implemented in [`contracts/compact/invoice_flow.compact`](file:///contracts/compact/invoice_flow.compact).
 
 ```mermaid
 graph TD
@@ -62,13 +84,19 @@ graph TD
     L3 --> M1 --> M2 --> M3 --> M4
 ```
 
-### Key Circuits & State
+### Core Circuits
 
-1. **`export ledger merkleRoot: Bytes<32>`**: Holds the active Merkle root of all validly tokenized invoice commitments.
-2. **`export ledger nullifiers: Map<Bytes<32>, Boolean>`**: Permanent on-chain registry of spent/settled nullifiers preventing replay attacks.
-3. **`export circuit tokenizeInvoice(...)`**: Computes leaf commitment and updates the on-chain Merkle root.
-4. **`export circuit proveAccess(...)`**: Proves that the caller possesses a valid invoice committed in the Merkle root and yields the unspent nullifier without revealing private financial values.
-5. **`export circuit settleInvoice(...)`**: Marks the nullifier as spent, updates shielded settlement volume, and increases the client's verifiable reputation score.
+1. **`export circuit tokenizeInvoice(...)`**:
+   - Takes public hash, leaf commitment, and new Merkle root.
+   - Inserts commitment without revealing private amount or client credentials.
+2. **`export circuit proveAccess(...)`**:
+   - Validates client-side private witnesses: `getPrivateInvoiceSecret()`, `getInvoiceAmount()`, `getInvoiceSalt()`, `getMerklePath()`.
+   - Checks Merkle inclusion proof $H(\text{leaf}, \text{root})$.
+   - Calculates and returns deterministic nullifier $N = H(\text{secret}, \text{salt}, \text{"INVOICEFLOW_NULLIFIER"})$.
+3. **`export circuit settleInvoice(...)`**:
+   - Asserts `!nullifiers.member(nullifier)`.
+   - Records nullifier as permanently spent to block double-spend / replay attacks.
+   - Increments shielded volume and updates verifiable client reputation index.
 
 ---
 
@@ -81,18 +109,45 @@ graph TD
 | **`proveAccess` Verification Tx** | `0x4a8f9c1d2e3b5a7e6f8c9d0b1a2e3f4c5d6e7a8b9c0d1e2f3a4b5c6d7e8f9a0b` | [View Proof Tx](https://explorer.preprod.midnight.network/tx/0x4a8f9c1d2e3b5a7e6f8c9d0b1a2e3f4c5d6e7a8b9c0d1e2f3a4b5c6d7e8f9a0b) |
 | **`tokenizeInvoice` Genesis Tx** | `0x7b2c9a1d3e5f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b` | [View Tokenize Tx](https://explorer.preprod.midnight.network/tx/0x7b2c9a1d3e5f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b) |
 | **`settleInvoice` Settlement Tx** | `0x9e1f3a5b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f` | [View Settlement Tx](https://explorer.preprod.midnight.network/tx/0x9e1f3a5b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f) |
-| **Midnight Indexer Endpoint** | `https://indexer.preprod.midnight.network/api/v1/graphql` | Active |
-| **Midnight Proof Server** | `https://proof-server.preprod.midnight.network` | Active |
 
 ---
 
-## 🛠️ Reproduction & Testing Guide
+## 🧪 Automated Test Suite (4/4 Passing)
 
-### 1. Prerequisites
-- Node.js v20+ and npm
-- **Midnight Lace Wallet** Chrome extension installed (or demo Preprod connector provided in UI).
+The repository includes an automated test suite verifying Compact circuit math, Merkle membership, nullifier collision prevention, and selective disclosure properties.
 
-### 2. Local Setup & Execution
+```bash
+cd frontend
+npm test
+```
+
+### Test Output
+```text
+▶ InvoiceFlow Midnight Compact ZK Circuit Tests
+  ✔ Test 1: should generate verifiable leaf commitment without leaking private values (8.46ms)
+  ✔ Test 2: should prove Merkle membership inside proveAccess circuit (0.71ms)
+  ✔ Test 3: should enforce unique deterministic nullifiers to prevent double-spending (0.54ms)
+  ✔ Test 4: should verify what an observer can and cannot learn from transaction data (1.10ms)
+✔ InvoiceFlow Midnight Compact ZK Circuit Tests (12.02ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ duration_ms 101.87ms
+```
+
+---
+
+## ⚙️ CI/CD Pipeline
+
+The automated CI/CD pipeline is configured in [`.github/workflows/ci.yml`](file:///.github/workflows/ci.yml). On every push and pull request:
+1. Validates Midnight Compact smart contract schema and circuits.
+2. Executes the zero-knowledge circuit test suite.
+3. Ensures zero regression across production frontend builds.
+
+---
+
+## 🚀 Reproduction & Testing Guide
 
 ```bash
 # 1. Clone repository
@@ -103,31 +158,18 @@ cd InvoiceFlows
 cd frontend
 npm install
 
-# 3. Start development server
+# 3. Run automated tests
+npm test
+
+# 4. Start local development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### 3. Verification Workflow Steps
-
-1. **Connect Midnight Lace Wallet:**
-   - Click **Connect Lace Wallet** in the top navigation bar.
-   - The DApp connector connects via `window.midnight.mnLace` and displays your shielded tDUST balance.
-2. **Tokenize a Private Invoice:**
-   - Go to `/submit`, upload or enter invoice parameters (Client, Amount, Due Date).
-   - Click **Generate ZK Proof & Tokenize**.
-   - The app runs the Compact `tokenizeInvoice` pipeline, inserts the commitment into the Merkle tree, and logs the Preprod transaction hash.
-3. **Execute `proveAccess` Circuit:**
-   - Go to `/verify/[id]`.
-   - Click **Execute proveAccess Circuit Pipeline**.
-   - Watch the 3-stage execution pipeline:
-     - **Stage 1 (Proof):** Generates zero-knowledge proof of Merkle membership via the Midnight Proof Server.
-     - **Stage 2 (Balance):** Calculates transaction resource fees with tDUST through the DApp Connector.
-     - **Stage 3 (Submit):** Submits transaction to Midnight Preprod and derives the deterministic nullifier.
-4. **Marketplace Settle & Double-Financing Check:**
-   - Visit `/marketplace` to view shielded investment opportunities.
-   - Click **Settle via settleInvoice**. The contract verifies that the nullifier is unspent and marks it as spent permanently.
+Open [http://localhost:3000](http://localhost:3000) to test:
+1. **Connect Lace Wallet**: Top right header connects via `window.midnight.mnLace`.
+2. **Submit Invoice (`/submit`)**: Generates private leaf commitment & updates Merkle tree.
+3. **Verify via `proveAccess` (`/verify/[id]`)**: Runs the Proof $\to$ Balance $\to$ Submit pipeline.
+4. **Marketplace Settle (`/marketplace`)**: Settles via `settleInvoice` with nullifier state checks.
 
 ---
 
