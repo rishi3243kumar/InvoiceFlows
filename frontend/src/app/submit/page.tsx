@@ -47,6 +47,7 @@ export default function SubmitInvoice() {
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [discountRate, setDiscountRate] = useState(5);
+  const [showGasComparison, setShowGasComparison] = useState(false);
 
   const copyVerificationLink = () => {
     if (!successTx) return;
@@ -234,6 +235,25 @@ export default function SubmitInvoice() {
 
           {/* Gas Fee Transparency Display */}
           <div style={{ marginTop: '1.5rem', padding: '0.75rem 1rem', background: 'rgba(168, 85, 247, 0.05)', borderRadius: '0.5rem', border: '1px solid rgba(168, 85, 247, 0.15)', fontSize: '0.75rem', color: '#94a3b8' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <span style={{ fontWeight: 600 }}>Stellar Network Cost Breakdown</span>
+              <button 
+                type="button"
+                onClick={() => setShowGasComparison(!showGasComparison)}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: 'var(--primary-cyan)', 
+                  cursor: 'pointer', 
+                  textDecoration: 'underline',
+                  fontSize: '0.7rem',
+                  padding: 0
+                }}
+              >
+                {showGasComparison ? 'Hide Comparison' : 'Compare Networks'}
+              </button>
+            </div>
+            
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
               <span>Stellar Transaction Base Fee:</span>
               <span style={{ fontFamily: 'Share Tech Mono, monospace', color: 'var(--nebula-purple)' }}>100 Stroops</span>
@@ -244,8 +264,29 @@ export default function SubmitInvoice() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#fff', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '0.25rem', marginTop: '0.25rem' }}>
               <span>Est. Network Fee:</span>
-              <span style={{ fontFamily: 'Share Tech Mono, monospace', color: 'var(--primary-cyan)' }}>0.0075 XLM</span>
+              <span style={{ fontFamily: 'Share Tech Mono, monospace', color: 'var(--primary-cyan)' }}>0.0075 XLM (~$0.0007)</span>
             </div>
+
+            {showGasComparison && (
+              <div style={{ marginTop: '0.75rem', borderTop: '1px dashed rgba(168, 85, 247, 0.3)', paddingTop: '0.75rem' }}>
+                <div style={{ fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>Interchain Gas Fee Analysis:</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', color: '#10b981' }}>
+                  <span>Stellar Soroban:</span>
+                  <strong>$0.0007 (0.0075 XLM)</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', color: '#64748b' }}>
+                  <span>Solana:</span>
+                  <strong>$0.00025 (0.000005 SOL)</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ef4444' }}>
+                  <span>Ethereum:</span>
+                  <strong>$12.50 (0.0035 ETH)</strong>
+                </div>
+                <div style={{ fontSize: '0.65rem', color: '#64748b', marginTop: '0.5rem', fontStyle: 'italic' }}>
+                  Stellar is 17,800x cheaper than Ethereum for invoice tokenization.
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="form-group" style={{ marginTop: '2rem' }}>
