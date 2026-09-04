@@ -130,6 +130,41 @@ export default function Home() {
                 </svg>
               </div>
             </div>
+
+            {/* Astral Wallet Connection History Log */}
+            <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.25rem', marginTop: '0.5rem' }}>
+              <span className="tech-label" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.5rem' }}>ASTRAL CONNECTION STREAM</span>
+              <div style={{ 
+                fontFamily: 'Share Tech Mono, monospace', 
+                fontSize: '0.7rem', 
+                color: '#64748b', 
+                background: 'rgba(5, 7, 15, 0.4)', 
+                padding: '0.5rem 0.75rem', 
+                borderRadius: '0.5rem', 
+                maxHeight: '85px', 
+                overflowY: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.35rem'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--primary-cyan)' }}>[OK] Freighter wallet connected</span>
+                  <span>Just Now</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--glowing-gold)' }}>[TX] Fetching Horizon account data</span>
+                  <span>2m ago</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--nebula-purple)' }}>[SYS] Soroban contract instance synced</span>
+                  <span>5m ago</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>[OK] Node handshake established</span>
+                  <span>12m ago</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
