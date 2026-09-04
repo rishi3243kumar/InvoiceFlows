@@ -13,10 +13,46 @@ export default function VerifyInvoice() {
   const { showToast } = useToast();
   const params = useParams();
   const id = params?.id as string;
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const exportInvoice = (format: 'json' | 'xml') => {
+    const data = {
+      invoiceHash: id,
+      network: 'Stellar Testnet',
+      riskTier: 'Low Risk',
+      reputationScore: 98,
+      timestamp: new Date().toISOString()
+    };
+    
+    let content = '';
+    let filename = `invoice-${id.substring(0, 8)}`;
+    
+    if (format === 'json') {
+      content = JSON.stringify(data, null, 2);
+      filename += '.json';
+    } else {
+      content = `<?xml version="1.0" encoding="UTF-8"?>
+<StellarInvoice>
+  <InvoiceHash>${data.invoiceHash}</InvoiceHash>
+  <Network>${data.network}</Network>
+  <RiskTier>${data.riskTier}</RiskTier>
+  <ReputationScore>${data.reputationScore}</ReputationScore>
+  <ExportedAt>${data.timestamp}</ExportedAt>
+</StellarInvoice>`;
+      filename += '.xml';
+    }
+    
+    const blob = new Blob([content], { type: format === 'json' ? 'application/json' : 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast(`Invoice successfully exported as ${format.toUpperCase()}! 💾`, 'success');
+  };
 
   const handleVerify = async () => {
     setLoading(true);
@@ -138,6 +174,26 @@ export default function VerifyInvoice() {
             <div style={{ fontSize: '0.65rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Reputation Score</div>
             <ReputationRing score={98} size={65} />
           </div>
+        </div>
+
+        {/* Export Utility */}
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem' }}>
+          <button 
+            type="button" 
+            onClick={() => exportInvoice('json')} 
+            className="btn btn-outline" 
+            style={{ padding: '0.4rem 1rem', fontSize: '0.75rem', flex: 1, borderRadius: '0.5rem', borderColor: 'var(--primary-cyan)', color: 'var(--primary-cyan)' }}
+          >
+            Export JSON
+          </button>
+          <button 
+            type="button" 
+            onClick={() => exportInvoice('xml')} 
+            className="btn btn-outline" 
+            style={{ padding: '0.4rem 1rem', fontSize: '0.75rem', flex: 1, borderRadius: '0.5rem', borderColor: 'var(--primary-cyan)', color: 'var(--primary-cyan)' }}
+          >
+            Export XML
+          </button>
         </div>
 
         <button onClick={handleVerify} className="btn btn-cyan" style={{ width: '100%', fontSize: '1.1rem', opacity: loading ? 0.7 : 1 }} disabled={loading}>
