@@ -24,6 +24,7 @@ export default function Marketplace() {
   const [invoices, setInvoices] = useState(DEFAULT_INVOICES);
   const [filterTier, setFilterTier] = useState('ALL'); // ALL, A, B
   const [sortBy, setSortBy] = useState('YIELD'); // YIELD, PRICE
+  const [minApy, setMinApy] = useState(5);
   const [expandedInvoiceId, setExpandedInvoiceId] = useState<string | null>(null);
   const [tokenData, setTokenData] = useState<any>(null);
 
@@ -119,6 +120,10 @@ export default function Marketplace() {
       if (filterTier === 'ALL') return true;
       return inv.tier === filterTier;
     })
+    .filter(inv => {
+      const yieldVal = parseFloat(inv.yield);
+      return yieldVal >= minApy;
+    })
     .sort((a, b) => {
       if (sortBy === 'YIELD') {
         return parseFloat(b.yield) - parseFloat(a.yield);
@@ -169,6 +174,27 @@ export default function Marketplace() {
               {tier === 'ALL' ? 'All Tiers' : `Tier ${tier}`}
             </button>
           ))}
+        </div>
+
+        {/* APY Filter Slider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>MIN YIELD:</span>
+          <input 
+            type="range" 
+            min="5" 
+            max="15" 
+            value={minApy} 
+            onChange={(e) => setMinApy(parseInt(e.target.value))}
+            style={{ 
+              accentColor: 'var(--primary-cyan)', 
+              cursor: 'pointer',
+              height: '5px',
+              borderRadius: '3px'
+            }}
+          />
+          <span style={{ fontSize: '0.85rem', color: 'var(--primary-cyan)', fontWeight: 700, minWidth: '2.5rem' }}>
+            {minApy}%+
+          </span>
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
