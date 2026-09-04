@@ -143,7 +143,11 @@ npm test
 ### 1. Test Suite Passing (4/4 Tests)
 ![Test Output](docs/screenshots/tests_passing.png)
 
-> *To update with your custom screenshot, place your image in `docs/screenshots/tests_passing.png`.*
+---
+
+## 🎥 Demo Video
+
+- **Video Walkthrough (1-Minute Full Functionality):** [Watch Demo Video](https://photos.app.goo.gl/LMNv3m27GbHqDueAA)
 
 ---
 
