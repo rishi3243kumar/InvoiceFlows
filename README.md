@@ -3,10 +3,12 @@
 [![CI/CD Pipeline](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/ci.yml/badge.svg)](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Midnight Network](https://img.shields.io/badge/Midnight-Preprod%20Testnet-purple)](https://midnight.network)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-success)](https://invoice-flows.vercel.app/)
 
+> **Live Application:** [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/)  
 > **Midnight Network Track:** Confidential Credentials & Private Allowlist Access (Selective Disclosure)  
 > **Smart Contract Language:** Compact v0.18+ (ZK-SNARKs)  
-> **Wallet Integration:** Midnight Lace DApp Connector (`window.midnight.mnLace`)  
+> **Wallet Integration:** 1AM Wallet & Midnight Lace DApp Connectors  
 > **Architecture:** Poseidon Merkle Tree Commitments • Nullifiers • Proof $\to$ Balance $\to$ Submit Pipeline
 
 ---
@@ -190,4 +192,5 @@ Open [http://localhost:3000](http://localhost:3000) to test:
 
 - **GitHub Profile**: [@rishi3243kumar](https://github.com/rishi3243kumar)
 - **Repository Link**: [InvoiceFlows](https://github.com/rishi3243kumar/InvoiceFlows)
+- **Live Demo**: [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/)
 - **Contact Email**: [rishigshshshsh@gmail.com](mailto:rishigshshshsh@gmail.com)
