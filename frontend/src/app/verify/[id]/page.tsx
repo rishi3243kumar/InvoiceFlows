@@ -84,57 +84,44 @@ export default function VerifyInvoice() {
       }
       
       const { address: pubKey } = await getAddress() as any;
-      if (CONTRACTS.invoiceToken.includes('DUMMY')) {
-        // Simulation mode fallback for demo/reviewing when contracts are not deployed
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        
-        // Mark the local invoice as verified
-        const localInvoices = JSON.parse(localStorage.getItem('invoiceflow_local_invoices') || '[]');
-        const updated = localInvoices.map((inv: any) => {
-          if (inv.id === id || id.startsWith(inv.id)) {
-            return { ...inv, verified: true, tier: 'A' };
-          }
-          return inv;
-        });
-        localStorage.setItem('invoiceflow_local_invoices', JSON.stringify(updated));
-        
-        setSuccess(true);
-        showToast('Invoice verified and RWA Token minted on Stellar (Simulation Mode)!', 'success');
-        
-        setTimeout(() => {
-          window.location.href = '/marketplace';
-        }, 3000);
-      } else {
-        const account = await loadAccount(pubKey);
-        const contract = new Contract(CONTRACTS.invoiceToken);
-        
-        let hexHash = id;
-        if (hexHash.length < 64) hexHash = hexHash.padEnd(64, '0');
-        if (hexHash.length > 64) hexHash = hexHash.substring(0, 64);
-        
-        const args = [
-          StellarSdk.nativeToScVal(pubKey, { type: 'address' }),
-          StellarSdk.nativeToScVal(Buffer.from(hexHash, 'hex')),
-          StellarSdk.nativeToScVal(98, { type: 'u32' }),
-        ];
-
-        const txBuilder = new StellarSdk.TransactionBuilder(account, {
-          fee: '10000',
-          networkPassphrase: TESTNET_NETWORK_PASSPHRASE,
-        }).addOperation(
-          contract.call('mint_token', ...args)
-        ).setTimeout(30);
-
-        const result = await submitTransaction(txBuilder, pubKey);
-        
-        setSuccess(true);
-        showToast('Invoice verified and RWA Token minted on Stellar!', 'success');
-        
-        setTimeout(() => {
-          window.location.href = '/marketplace';
-        }, 3000);
-      }
+      const account = await loadAccount(pubKey);
+      const contract = new Contract(CONTRACTS.invoiceToken);
       
+      let hexHash = id;
+      if (hexHash.length < 64) hexHash = hexHash.padEnd(64, '0');
+      if (hexHash.length > 64) hexHash = hexHash.substring(0, 64);
+      
+      const args = [
+        StellarSdk.nativeToScVal(pubKey, { type: 'address' }),
+        StellarSdk.nativeToScVal(Buffer.from(hexHash, 'hex')),
+        StellarSdk.nativeToScVal(98, { type: 'u32' }),
+      ];
+
+      const txBuilder = new StellarSdk.TransactionBuilder(account, {
+        fee: '10000',
+        networkPassphrase: TESTNET_NETWORK_PASSPHRASE,
+      }).addOperation(
+        contract.call('mint_token', ...args)
+      ).setTimeout(30);
+
+      const result = await submitTransaction(txBuilder, pubKey);
+      
+      // Mark the local invoice as verified
+      const localInvoices = JSON.parse(localStorage.getItem('invoiceflow_local_invoices') || '[]');
+      const updated = localInvoices.map((inv: any) => {
+        if (inv.id === id || id.startsWith(inv.id)) {
+          return { ...inv, verified: true, tier: 'A' };
+        }
+        return inv;
+      });
+      localStorage.setItem('invoiceflow_local_invoices', JSON.stringify(updated));
+
+      setSuccess(true);
+      showToast('Invoice verified and RWA Token minted on Stellar!', 'success');
+      
+      setTimeout(() => {
+        window.location.href = '/marketplace';
+      }, 3000);
     } catch (err: any) {
       console.error(err);
       const errMsg = err.message || 'Failed to mint token on-chain.';

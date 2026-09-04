@@ -8,11 +8,7 @@ import { Contract } from '@stellar/stellar-sdk';
 import ReputationRing from '@/components/ReputationRing';
 import { useToast } from '@/components/Toast';
 
-const DEFAULT_INVOICES = [
-  { id: '1092', amount: 15000, riskScore: 98, price: 14580, yield: '9.4%', client: 'Acme Corp', duration: 30, tier: 'A' },
-  { id: '8839', amount: 4200, riskScore: 92, price: 3990, yield: '11.2%', client: 'Globex Inc', duration: 45, tier: 'A' },
-  { id: '4720', amount: 8000, riskScore: 78, price: 7440, yield: '14.0%', client: 'Umbrella Corp', duration: 60, tier: 'B' }
-];
+const DEFAULT_INVOICES: any[] = [];
 
 export default function Marketplace() {
   const { showToast } = useToast();
@@ -51,23 +47,11 @@ export default function Marketplace() {
     try {
       if (!tokenId) throw new Error("Please enter a valid Token ID.");
       // In a real app we'd query Horizon/Soroban for the token data.
-      // Here we simulate fetching the token data to keep UI responsive.
-      // If we had the real contract deployed, we'd use contract.call('get_token') here.
-      
       const existing = invoices.find(inv => inv.id === tokenId);
       if (existing) {
         setTokenData(existing);
       } else {
-        setTokenData({
-          id: tokenId,
-          amount: 5000,
-          riskScore: 95,
-          price: 4850,
-          yield: '9.8%',
-          client: 'Dynamic Corp',
-          duration: 30,
-          tier: 'A'
-        });
+        throw new Error("Token ID not found in the verified registry. Please make sure the invoice has been submitted and verified.");
       }
       
     } catch (err: any) {
@@ -294,7 +278,18 @@ export default function Marketplace() {
       {/* Main Opportunities Registry List */}
       <h3 style={{ marginBottom: '1.25rem', fontSize: '1.25rem', fontWeight: 800 }}>Stellar Verified Opportunities</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        {filteredInvoices.map((inv) => {
+        {filteredInvoices.length === 0 ? (
+          <div style={{ padding: '3rem 2rem', border: '1px dashed var(--surface-border)', borderRadius: '1rem', textAlign: 'center', background: 'rgba(255,255,255,0.01)' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📭</div>
+            <h4 style={{ marginBottom: '0.5rem', color: '#fff' }}>No Verified Invoices Active</h4>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '400px', margin: '0 auto 1.5rem auto' }}>
+              Only verified invoices with minted Real-World Asset (RWA) tokens appear here. Register a new invoice to get started.
+            </p>
+            <a href="/submit" className="btn btn-cyan" style={{ display: 'inline-block', textDecoration: 'none' }}>
+              Register Invoice
+            </a>
+          </div>
+        ) : filteredInvoices.map((inv) => {
           const isExpanded = expandedInvoiceId === inv.id;
           return (
             <div 

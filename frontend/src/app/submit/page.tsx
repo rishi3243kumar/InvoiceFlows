@@ -69,66 +69,41 @@ export default function SubmitInvoice() {
       
       const { address: pubKey } = await getAddress() as any;
       const dueTimestamp = Math.floor(new Date(dueDate).getTime() / 1000);
-
-      if (CONTRACTS.invoiceRegistry.includes('DUMMY')) {
-        // Simulation mode fallback for demo/reviewing when contracts are not deployed
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        const mockHash = 'c' + Math.random().toString(16).substring(2, 18).padEnd(64, '0');
-        
-        // Save to local storage for end-to-end integration with Marketplace and Verify pages
-        const localInvoices = JSON.parse(localStorage.getItem('invoiceflow_local_invoices') || '[]');
-        localInvoices.push({
-          id: mockHash.substring(0, 8),
-          amount: parseInt(amount),
-          riskScore: 98,
-          price: Math.floor(parseInt(amount) * 0.96),
-          yield: '12.0%',
-          client: clientName,
-          duration: Math.max(1, Math.ceil((dueTimestamp - Math.floor(Date.now() / 1000)) / 86400)),
-          tier: 'A'
-        });
-        localStorage.setItem('invoiceflow_local_invoices', JSON.stringify(localInvoices));
-        
-        setSuccessTx(mockHash);
-        showToast('Invoice registered successfully on Stellar Trust Layer (Simulation Mode)!', 'success');
-      } else {
-        const account = await loadAccount(pubKey);
-        const contract = new Contract(CONTRACTS.invoiceRegistry);
-        
-        const args = [
-          StellarSdk.nativeToScVal(clientName, { type: 'string' }),
-          StellarSdk.nativeToScVal(parseInt(amount), { type: 'u64' }),
-          StellarSdk.nativeToScVal(dueTimestamp, { type: 'u64' }),
-          StellarSdk.nativeToScVal(pubKey, { type: 'address' }),
-        ];
-
-        const txBuilder = new StellarSdk.TransactionBuilder(account, {
-          fee: '10000',
-          networkPassphrase: TESTNET_NETWORK_PASSPHRASE,
-        }).addOperation(
-          contract.call('submit_invoice', ...args)
-        ).setTimeout(30);
-
-        const result = await submitTransaction(txBuilder, pubKey);
-        
-        // Save to local storage for end-to-end integration with Marketplace and Verify pages
-        const localInvoices = JSON.parse(localStorage.getItem('invoiceflow_local_invoices') || '[]');
-        localInvoices.push({
-          id: result.hash.substring(0, 8),
-          amount: parseInt(amount),
-          riskScore: 98,
-          price: Math.floor(parseInt(amount) * 0.96),
-          yield: '12.0%',
-          client: clientName,
-          duration: Math.max(1, Math.ceil((dueTimestamp - Math.floor(Date.now() / 1000)) / 86400)),
-          tier: 'A'
-        });
-        localStorage.setItem('invoiceflow_local_invoices', JSON.stringify(localInvoices));
-
-        setSuccessTx(result.hash);
-        showToast('Invoice registered successfully on Stellar Trust Layer!', 'success');
-      }
+      const account = await loadAccount(pubKey);
+      const contract = new Contract(CONTRACTS.invoiceRegistry);
       
+      const args = [
+        StellarSdk.nativeToScVal(clientName, { type: 'string' }),
+        StellarSdk.nativeToScVal(parseInt(amount), { type: 'u64' }),
+        StellarSdk.nativeToScVal(dueTimestamp, { type: 'u64' }),
+        StellarSdk.nativeToScVal(pubKey, { type: 'address' }),
+      ];
+
+      const txBuilder = new StellarSdk.TransactionBuilder(account, {
+        fee: '10000',
+        networkPassphrase: TESTNET_NETWORK_PASSPHRASE,
+      }).addOperation(
+        contract.call('submit_invoice', ...args)
+      ).setTimeout(30);
+
+      const result = await submitTransaction(txBuilder, pubKey);
+      
+      // Save to local storage for end-to-end integration with Marketplace and Verify pages
+      const localInvoices = JSON.parse(localStorage.getItem('invoiceflow_local_invoices') || '[]');
+      localInvoices.push({
+        id: result.hash.substring(0, 8),
+        amount: parseInt(amount),
+        riskScore: 98,
+        price: Math.floor(parseInt(amount) * 0.96),
+        yield: '12.0%',
+        client: clientName,
+        duration: Math.max(1, Math.ceil((dueTimestamp - Math.floor(Date.now() / 1000)) / 86400)),
+        tier: 'A'
+      });
+      localStorage.setItem('invoiceflow_local_invoices', JSON.stringify(localInvoices));
+
+      setSuccessTx(result.hash);
+      showToast('Invoice registered successfully on Stellar Trust Layer!', 'success');
     } catch (err: any) {
       console.error(err);
       let errMsg = err.message || 'Failed to submit invoice to blockchain.';
