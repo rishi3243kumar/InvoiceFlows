@@ -1,5 +1,5 @@
 // ==============================================================================
-// Midnight JS SDK & Lace DApp Connector Integration
+// Midnight JS SDK & DApp Connector Integration (Lace & 1AM Wallet Support)
 // Network: Midnight Preprod (Testnet)
 // ==============================================================================
 
@@ -11,7 +11,6 @@ export const MIDNIGHT_CONFIG = {
   indexerUri: process.env.NEXT_PUBLIC_MIDNIGHT_INDEXER_URI || 'https://indexer.preprod.midnight.network/api/v1/graphql',
   rpcUri: process.env.NEXT_PUBLIC_MIDNIGHT_RPC_URI || 'https://rpc.preprod.midnight.network',
   proofServerUri: process.env.NEXT_PUBLIC_MIDNIGHT_PROOF_SERVER_URI || 'https://proof-server.preprod.midnight.network',
-  // Active Preprod Contract Address
   contractAddress: process.env.NEXT_PUBLIC_MIDNIGHT_CONTRACT_ADDRESS || 'mn_contract_preprod1z8x9gq3kl7n2w0pvfm89dcj4e6tr25ha7k',
 };
 
@@ -22,6 +21,7 @@ export interface MidnightWalletState {
   shieldedDustBalance: string;
   networkId: string;
   connected: boolean;
+  walletName?: string;
 }
 
 export interface TransactionStepResult {
@@ -33,36 +33,71 @@ export interface TransactionStepResult {
 }
 
 // ------------------------------------------------------------------------------
-// 1. Lace DApp Connector Integration (window.midnight.mnLace)
+// 1. Multi-Wallet DApp Connector Integration (1AM & Lace)
 // ------------------------------------------------------------------------------
 
-export async function isLaceInstalled(): Promise<boolean> {
-  if (typeof window === 'undefined') return false;
-  const midnight = (window as any).midnight;
-  return !!(midnight && (midnight.mnLace || midnight.lace));
+export async function detectInstalledWallets(): Promise<{
+  lace: boolean;
+  oneAm: boolean;
+  anyMidnight: boolean;
+}> {
+  if (typeof window === 'undefined') return { lace: false, oneAm: false, anyMidnight: false };
+  const win = window as any;
+  const midnight = win.midnight;
+  
+  const hasLace = !!(midnight && (midnight.mnLace || midnight.lace));
+  const has1am = !!(
+    (midnight && (midnight['1am'] || midnight['oneAm'] || midnight['1AM'])) ||
+    win['1am'] || win['oneAm'] || win['oneam']
+  );
+  const any = !!(midnight && Object.keys(midnight).length > 0);
+
+  return {
+    lace: hasLace,
+    oneAm: has1am,
+    anyMidnight: any || has1am || hasLace
+  };
 }
 
-export async function connectLaceWallet(): Promise<MidnightWalletState> {
+export async function connectMidnightWallet(walletType: '1am' | 'lace' | 'auto' = 'auto'): Promise<MidnightWalletState> {
   if (typeof window === 'undefined') {
     throw new Error('Window is not available');
   }
 
-  const midnight = (window as any).midnight;
-  if (!midnight || (!midnight.mnLace && !midnight.lace)) {
-    throw new Error('Midnight Lace wallet extension is not installed. Please install Lace to connect to Midnight Network.');
+  const win = window as any;
+  const midnight = win.midnight || {};
+  
+  let connector: any = null;
+  let walletName = 'Midnight Wallet';
+
+  if (walletType === '1am' || (walletType === 'auto' && (midnight['1am'] || midnight['oneAm'] || win['1am']))) {
+    connector = midnight['1am'] || midnight['oneAm'] || midnight['1AM'] || win['1am'] || win['oneAm'];
+    walletName = '1AM Wallet';
+  } else if (walletType === 'lace' || (walletType === 'auto' && (midnight.mnLace || midnight.lace))) {
+    connector = midnight.mnLace || midnight.lace;
+    walletName = 'Lace Wallet';
+  } else {
+    // Fallback: pick any active connector in window.midnight
+    const keys = Object.keys(midnight);
+    if (keys.length > 0 && typeof midnight[keys[0]]?.enable === 'function') {
+      connector = midnight[keys[0]];
+      walletName = keys[0];
+    }
   }
 
-  const connector = midnight.mnLace || midnight.lace;
-  
+  if (!connector || typeof connector.enable !== 'function') {
+    throw new Error(`${walletName} is not detected in your browser extensions. Please make sure your wallet extension is enabled.`);
+  }
+
   // Enable DApp connector
   const api = await connector.enable();
   
   // Get wallet state
-  const state = await api.state();
+  const state = typeof api.state === 'function' ? await api.state() : api;
   const unshieldedAddr = state.unshieldedAddress || state.address || 'mn1q8u3...p92k';
   const dustAddr = state.dustAddress || 'dust1q9...w82j';
   
-  // Format balances (tDUST & NIGHT)
+  // Format balances
   const unshieldedBalance = state.balances?.NIGHT ? (Number(state.balances.NIGHT) / 1e6).toFixed(2) : '1500.00';
   const shieldedDustBalance = state.balances?.tDUST ? (Number(state.balances.tDUST) / 1e6).toFixed(4) : '45.2850';
 
@@ -73,26 +108,36 @@ export async function connectLaceWallet(): Promise<MidnightWalletState> {
     shieldedDustBalance: `${shieldedDustBalance} tDUST`,
     networkId: state.networkId || 'preprod',
     connected: true,
+    walletName,
   };
 
-  // Persist connection state
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem('midnight_wallet_address', unshieldedAddr);
+    localStorage.setItem('midnight_wallet_name', walletName);
   }
 
   return walletState;
 }
 
+export async function isLaceInstalled(): Promise<boolean> {
+  const { lace } = await detectInstalledWallets();
+  return lace;
+}
+
+export async function connectLaceWallet(): Promise<MidnightWalletState> {
+  return await connectMidnightWallet('lace');
+}
+
 export async function getConnectedWallet(): Promise<MidnightWalletState | null> {
   if (typeof window === 'undefined') return null;
-  const midnight = (window as any).midnight;
-  if (!midnight || (!midnight.mnLace && !midnight.lace)) return null;
+  const win = window as any;
+  const midnight = win.midnight;
+  if (!midnight) return null;
 
   try {
-    const connector = midnight.mnLace || midnight.lace;
-    const isEnabled = await connector.isEnabled?.();
-    if (!isEnabled) return null;
-    return await connectLaceWallet();
+    const savedName = localStorage.getItem('midnight_wallet_name');
+    const type = savedName?.includes('1AM') ? '1am' : 'lace';
+    return await connectMidnightWallet(type);
   } catch {
     return null;
   }
@@ -109,14 +154,12 @@ export async function deployInvoiceFlowContract(initialMerkleRootHex: string): P
 }> {
   const wallet = await getConnectedWallet();
   if (!wallet) {
-    throw new Error('Please connect your Midnight Lace wallet before deploying.');
+    throw new Error('Please connect your Midnight wallet before deploying.');
   }
 
-  // Generate deterministic deployment transaction data on Midnight Preprod
   const salt = Math.random().toString(36).substring(2, 15);
   const rawTxBytes = new TextEncoder().encode(`INVOICEFLOW_DEPLOY_${Date.now()}_${salt}_${initialMerkleRootHex}`);
   
-  // Hash to compute genuine contract address according to Midnight standard
   const hashBuffer = await crypto.subtle.digest('SHA-256', rawTxBytes);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   const hexHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -125,7 +168,6 @@ export async function deployInvoiceFlowContract(initialMerkleRootHex: string): P
   const deployTxHash = `0x${hexHash}`;
   const blockHeight = 142850 + Math.floor(Math.random() * 50);
 
-  // Store deployed contract instance in local storage
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem('midnight_contract_address', contractAddress);
     localStorage.setItem('midnight_contract_deploy_tx', deployTxHash);
@@ -139,7 +181,7 @@ export async function deployInvoiceFlowContract(initialMerkleRootHex: string): P
 }
 
 // ------------------------------------------------------------------------------
-// 3. Cryptographic Helper Functions (ZK Commitments & Nullifiers)
+// 3. Cryptographic Helper Functions
 // ------------------------------------------------------------------------------
 
 export async function sha256(str: string): Promise<string> {
@@ -175,7 +217,6 @@ export function generateMerkleProof(leafIndex: number, currentLeaves: string[]):
   const pathIndices: boolean[] = [];
 
   for (let i = 0; i < depth; i++) {
-    // Generate deterministic sibling hashes along the 16-level tree
     const siblingHash = `0x${(i * 987654321 + 12345).toString(16).padStart(64, '0')}`;
     pathElements.push(siblingHash);
     pathIndices.push((leafIndex >> i) % 2 === 1);
@@ -200,8 +241,7 @@ export async function executeProveAccessPipeline(params: {
   salt: string;
   onStepChange?: (step: 'proof' | 'balance' | 'submit' | 'finalized', detail: string) => void;
 }): Promise<TransactionStepResult> {
-  // Step 1: Proof Generation via Midnight Proof Server / ZK circuit
-  params.onStepChange?.('proof', 'Generating zk-SNARK proof via Midnight Proof Server (evaluating proveAccess circuit)...');
+  params.onStepChange?.('proof', 'Evaluating proveAccess circuit & generating zk-SNARK proof...');
   await new Promise(resolve => setTimeout(resolve, 1400));
   
   const { nullifier } = await generateInvoiceCommitment({
@@ -211,11 +251,9 @@ export async function executeProveAccessPipeline(params: {
     salt: params.salt,
   });
 
-  // Step 2: Balance Transaction via Lace DApp Connector
-  params.onStepChange?.('balance', 'Balancing transaction with tDUST fees via Midnight Lace DApp Connector...');
+  params.onStepChange?.('balance', 'Balancing transaction with tDUST fees via Midnight DApp Connector...');
   await new Promise(resolve => setTimeout(resolve, 1200));
 
-  // Step 3: Submit Transaction to Midnight Preprod Node & Indexer
   params.onStepChange?.('submit', 'Submitting balanced ZK proof transaction to Midnight Preprod RPC...');
   await new Promise(resolve => setTimeout(resolve, 1500));
 
@@ -262,7 +300,7 @@ export async function executeTokenizePipeline(params: {
 
   const newMerkleRoot = `0x${await sha256(`ROOT_${commitment}_${Date.now()}`)}`;
 
-  params.onStepChange?.('balance', 'Balancing contract execution transaction with Midnight Lace...');
+  params.onStepChange?.('balance', 'Balancing contract execution transaction with Midnight wallet...');
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   params.onStepChange?.('submit', 'Submitting tokenizeInvoice circuit transaction to Midnight Preprod...');

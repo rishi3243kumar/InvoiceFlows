@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/Toast';
 import { 
-  connectLaceWallet, 
+  connectMidnightWallet, 
   getConnectedWallet, 
-  isLaceInstalled, 
+  detectInstalledWallets,
   MidnightWalletState,
   MIDNIGHT_CONFIG 
 } from '@/lib/midnight';
@@ -19,9 +19,9 @@ const themes = [
 export default function Header() {
   const [wallet, setWallet] = useState<MidnightWalletState | null>(null);
   const [activeTheme, setActiveTheme] = useState(0);
-  const [showInstallModal, setShowInstallModal] = useState(false);
+  const [showConnectModal, setShowConnectModal] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
-  const [connecting, setConnecting] = useState(false);
+  const [connectingType, setConnectingType] = useState<string | null>(null);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -43,26 +43,34 @@ export default function Header() {
     }
   };
 
-  const handleConnect = async () => {
-    setConnecting(true);
+  const handleWalletSelect = async (type: '1am' | 'lace' | 'demo') => {
+    if (type === 'demo') {
+      setWallet({
+        address: 'mn1q8z9x2u3kvfm89dcj4e6tr25ha7kp92k',
+        dustAddress: 'dust1q9pvfm89dcj4e6tr25ha7k8w82j',
+        unshieldedBalance: '2500.00 NIGHT',
+        shieldedDustBalance: '48.5000 tDUST',
+        networkId: 'preprod',
+        connected: true,
+        walletName: 'Demo Preprod Wallet'
+      });
+      setShowConnectModal(false);
+      showToast('Connected with Midnight Preprod Demo Wallet! 🔐', 'success');
+      return;
+    }
+
+    setConnectingType(type);
     try {
-      const installed = await isLaceInstalled();
-      if (!installed) {
-        setShowInstallModal(true);
-        setConnecting(false);
-        return;
-      }
-      
-      showToast('Connecting to Midnight Lace DApp Connector...', 'info');
-      const w = await connectLaceWallet();
+      showToast(`Connecting to ${type === '1am' ? '1AM Wallet' : 'Midnight Lace'}...`, 'info');
+      const w = await connectMidnightWallet(type);
       setWallet(w);
-      showToast('Midnight Lace Wallet Connected Successfully! 🔐', 'success');
+      setShowConnectModal(false);
+      showToast(`${w.walletName || type.toUpperCase()} Connected Successfully! 🔐`, 'success');
     } catch (e: any) {
       console.error(e);
-      showToast(e.message || 'Lace DApp Connector initialized.', 'info');
-      setShowInstallModal(true);
+      showToast(e.message || `Could not find ${type === '1am' ? '1AM Wallet' : 'Lace'}. You can use Demo Preprod Wallet.`, 'error');
     } finally {
-      setConnecting(false);
+      setConnectingType(null);
     }
   };
 
@@ -70,6 +78,7 @@ export default function Header() {
     setWallet(null);
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem('midnight_wallet_address');
+      localStorage.removeItem('midnight_wallet_name');
     }
     showToast('Wallet disconnected', 'info');
   };
@@ -184,14 +193,14 @@ export default function Header() {
             </button>
           </div>
         ) : (
-          <button className="btn btn-cyan" onClick={handleConnect} disabled={connecting} style={{ padding: '0.55rem 1.25rem', fontSize: '0.82rem' }}>
-            <span>🔐</span> {connecting ? 'CONNECTING...' : 'CONNECT LACE WALLET'}
+          <button className="btn btn-cyan" onClick={() => setShowConnectModal(true)} style={{ padding: '0.55rem 1.25rem', fontSize: '0.82rem' }}>
+            <span>🔐</span> CONNECT WALLET
           </button>
         )}
       </div>
 
-      {/* Midnight Lace Wallet Modal */}
-      {showInstallModal && (
+      {/* Wallet Selection Modal (1AM & Lace Support) */}
+      {showConnectModal && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -214,44 +223,55 @@ export default function Header() {
             boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(192, 132, 252, 0.25)',
             animation: 'slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
           }}>
-            <span style={{ fontSize: '2.75rem', display: 'block', marginBottom: '0.75rem' }}>🌘</span>
-            <h2 style={{ marginBottom: '0.5rem', fontWeight: 800, color: '#ffffff' }}>Midnight Lace Wallet</h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-              InvoiceFlow utilizes Midnight Network's Zero-Knowledge Compact contracts. Connect your <strong>Midnight Lace Wallet</strong> to generate proofs and sign shielded transactions on Preprod.
+            <span style={{ fontSize: '2.75rem', display: 'block', marginBottom: '0.5rem' }}>🌘</span>
+            <h2 style={{ marginBottom: '0.4rem', fontWeight: 800, color: '#ffffff' }}>Connect Midnight Wallet</h2>
+            <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+              Select your installed Midnight wallet to sign zero-knowledge proofs and manage shielded tDUST on Preprod.
             </p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <a 
-                href="https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhgahdcakkhabbp" 
-                target="_blank" 
-                rel="noreferrer" 
+              {/* Option 1: 1AM Wallet */}
+              <button 
+                onClick={() => handleWalletSelect('1am')}
+                disabled={connectingType !== null}
                 className="btn btn-cyan" 
-                style={{ justifyContent: 'center' }}
+                style={{ justifyContent: 'space-between', padding: '0.85rem 1.25rem', background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)', color: '#030712' }}
               >
-                📥 Get Midnight Lace Extension
-              </a>
-              <button 
-                onClick={() => {
-                  setWallet({
-                    address: 'mn1q8z9x2u3kvfm89dcj4e6tr25ha7kp92k',
-                    dustAddress: 'dust1q9pvfm89dcj4e6tr25ha7k8w82j',
-                    unshieldedBalance: '2500.00 NIGHT',
-                    shieldedDustBalance: '48.5000 tDUST',
-                    networkId: 'preprod',
-                    connected: true
-                  });
-                  setShowInstallModal(false);
-                  showToast('Connected with Midnight Lace (Preprod Testnet)! 🔐', 'success');
-                }} 
-                className="btn btn-outline" 
-                style={{ justifyContent: 'center', borderColor: '#38bdf8', color: '#38bdf8' }}
-              >
-                ⚡ Connect Demo Preprod Wallet
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 800 }}>
+                  <span style={{ fontSize: '1.2rem' }}>🪐</span> 1AM Wallet
+                </div>
+                <span style={{ fontSize: '0.75rem', opacity: 0.85 }}>{connectingType === '1am' ? 'Connecting...' : 'Connect ➔'}</span>
               </button>
+
+              {/* Option 2: Lace Wallet */}
               <button 
-                onClick={() => setShowInstallModal(false)} 
+                onClick={() => handleWalletSelect('lace')}
+                disabled={connectingType !== null}
+                className="btn btn-cyan" 
+                style={{ justifyContent: 'space-between', padding: '0.85rem 1.25rem' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 800 }}>
+                  <span style={{ fontSize: '1.2rem' }}>🌌</span> Midnight Lace Wallet
+                </div>
+                <span style={{ fontSize: '0.75rem', opacity: 0.85 }}>{connectingType === 'lace' ? 'Connecting...' : 'Connect ➔'}</span>
+              </button>
+
+              {/* Option 3: Instant Demo Preprod Wallet */}
+              <button 
+                onClick={() => handleWalletSelect('demo')}
                 className="btn btn-outline" 
-                style={{ justifyContent: 'center', borderColor: 'rgba(255,255,255,0.1)' }}
+                style={{ justifyContent: 'space-between', padding: '0.75rem 1.25rem', borderColor: '#38bdf8', color: '#38bdf8' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <span>⚡</span> Demo Preprod Wallet (Instant)
+                </div>
+                <span style={{ fontSize: '0.75rem' }}>One-Click ➔</span>
+              </button>
+
+              <button 
+                onClick={() => setShowConnectModal(false)} 
+                className="btn btn-outline" 
+                style={{ justifyContent: 'center', borderColor: 'rgba(255,255,255,0.1)', marginTop: '0.5rem' }}
               >
                 Close
               </button>
