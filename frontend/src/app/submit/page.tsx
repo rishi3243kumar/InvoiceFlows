@@ -111,6 +111,20 @@ export default function SubmitInvoice() {
 
         const result = await submitTransaction(txBuilder, pubKey);
         
+        // Save to local storage for end-to-end integration with Marketplace and Verify pages
+        const localInvoices = JSON.parse(localStorage.getItem('invoiceflow_local_invoices') || '[]');
+        localInvoices.push({
+          id: result.hash.substring(0, 8),
+          amount: parseInt(amount),
+          riskScore: 98,
+          price: Math.floor(parseInt(amount) * 0.96),
+          yield: '12.0%',
+          client: clientName,
+          duration: Math.max(1, Math.ceil((dueTimestamp - Math.floor(Date.now() / 1000)) / 86400)),
+          tier: 'A'
+        });
+        localStorage.setItem('invoiceflow_local_invoices', JSON.stringify(localInvoices));
+
         setSuccessTx(result.hash);
         showToast('Invoice registered successfully on Stellar Trust Layer!', 'success');
       }
