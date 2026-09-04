@@ -100,3 +100,10 @@ Additionally, Stellar's built-in **Asset Anchors** allow direct integration into
 19. **Astral Wallet Connection History Log**: High-tech dashboard component streaming wallet connection events, contract handshake stages, and transaction logs.
 20. **Interactive Help Guide Tooltips (Cosmic Tour)**: Global step-by-step walkthrough modal explaining the protocol logic and RWA tokenization flow.
 
+---
+
+## 👤 Author & Repository Details
+
+- **GitHub Profile**: [@rishi3243kumar](https://github.com/rishi3243kumar)
+- **Repository Link**: [InvoiceFlows](https://github.com/rishi3243kumar/InvoiceFlows)
+- **Contact Email**: [rishigshshshsh@gmail.com](mailto:rishigshshshsh@gmail.com)
