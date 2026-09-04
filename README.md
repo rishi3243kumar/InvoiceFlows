@@ -93,4 +93,10 @@ Additionally, Stellar's built-in **Asset Anchors** allow direct integration into
 12. **Invoice Status Timeline Stepper**: Step-by-step cosmic stepper demonstrating the current stage of an invoice from registration to client verification, funding, and final settlement.
 13. **Reputation Progress SVG Ring**: SVG circular reputation indicator that draws dynamic gradients according to user and client trust ratings.
 14. **Secondary Market Resale Listing**: Fast one-click reselling dashboard controls to trade owned invoice tokens prior to maturity.
+15. **Cosmic Invoice Filtering by APY Range**: Dynamic range slider filtering in the opportunities list to locate high-yield investments above specific APY thresholds.
+16. **Live Market Gas Fee Comparison toggle**: Interactive layout comparing transaction cost efficiency between Stellar, Ethereum, and Solana networks.
+17. **Dynamic Risk-Tier Badge**: Visual highlight badges categorizing opportunities based on transaction profiles and risk profiles.
+18. **Custom XML/JSON Invoice Exporter**: Instant download utilities for invoices in standard ERP-compatible JSON and XML formats.
+19. **Astral Wallet Connection History Log**: High-tech dashboard component streaming wallet connection events, contract handshake stages, and transaction logs.
+20. **Interactive Help Guide Tooltips (Cosmic Tour)**: Global step-by-step walkthrough modal explaining the protocol logic and RWA tokenization flow.
 
