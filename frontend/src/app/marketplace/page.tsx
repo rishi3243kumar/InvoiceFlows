@@ -298,6 +298,17 @@ export default function Marketplace() {
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <span style={{ fontWeight: '700', fontSize: '1.15rem', color: '#fff' }}>{inv.client}</span>
                     <span className="tech-label" style={{ padding: '0.15rem 0.5rem', fontSize: '0.65rem' }}>ID #{inv.id}</span>
+                    <span style={{ 
+                      padding: '0.15rem 0.5rem', 
+                      fontSize: '0.65rem',
+                      fontWeight: 'bold',
+                      borderRadius: '0.25rem',
+                      color: inv.tier === 'A' ? 'var(--primary-cyan)' : inv.tier === 'B' ? '#a855f7' : '#f59e0b',
+                      backgroundColor: inv.tier === 'A' ? 'rgba(6, 182, 212, 0.1)' : inv.tier === 'B' ? 'rgba(168, 85, 247, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                      border: `1px solid ${inv.tier === 'A' ? 'var(--primary-cyan)' : inv.tier === 'B' ? '#a855f7' : '#f59e0b'}`
+                    }}>
+                      Tier {inv.tier}
+                    </span>
                   </div>
                   <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.25rem' }}>
                     Amount: <strong style={{ color: 'var(--primary-cyan)' }}>${inv.amount.toLocaleString()} USDC</strong> • Lockup: {inv.duration} Days
