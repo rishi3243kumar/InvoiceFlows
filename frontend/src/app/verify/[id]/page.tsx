@@ -2,20 +2,25 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { getAddress, isConnected } from '@stellar/freighter-api';
-import { CONTRACTS, loadAccount, server, submitTransaction, TESTNET_NETWORK_PASSPHRASE } from '@/lib/soroban';
-import * as StellarSdk from '@stellar/stellar-sdk';
-import { Contract } from '@stellar/stellar-sdk';
 import ReputationRing from '@/components/ReputationRing';
 import { useToast } from '@/components/Toast';
+import { 
+  executeProveAccessPipeline, 
+  getConnectedWallet, 
+  MIDNIGHT_CONFIG 
+} from '@/lib/midnight';
 
 export default function VerifyInvoice() {
   const { showToast } = useToast();
   const params = useParams();
   const id = params?.id as string;
+  
   const [loading, setLoading] = useState(false);
+  const [pipelineDetail, setPipelineDetail] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [nullifier, setNullifier] = useState<string | null>(null);
 
   const [invoiceDetails, setInvoiceDetails] = useState<any>(null);
 
@@ -28,6 +33,17 @@ export default function VerifyInvoice() {
           const found = parsed.find((inv: any) => inv.id === id || id.startsWith(inv.id));
           if (found) {
             setInvoiceDetails(found);
+          } else {
+            // Default placeholder representation for direct links
+            setInvoiceDetails({
+              id,
+              client: 'Acme Global Solutions',
+              amount: 5000,
+              riskScore: 98,
+              secret: 'sec_0987654321',
+              salt: 'salt_1725350400',
+              tier: 'A'
+            });
           }
         } catch (e) {
           console.error(e);
@@ -38,28 +54,32 @@ export default function VerifyInvoice() {
 
   const exportInvoice = (format: 'json' | 'xml') => {
     const data = {
-      invoiceHash: id,
-      network: 'Stellar Testnet',
-      riskTier: 'Low Risk',
+      invoiceId: id,
+      network: 'Midnight Preprod (Zero-Knowledge)',
+      contractAddress: MIDNIGHT_CONFIG.contractAddress,
+      circuit: 'proveAccess',
+      nullifier: nullifier || '0x4f8e9a2b1c...',
       reputationScore: 98,
       timestamp: new Date().toISOString()
     };
     
     let content = '';
-    let filename = `invoice-${id.substring(0, 8)}`;
+    let filename = `midnight-invoice-${id.substring(0, 8)}`;
     
     if (format === 'json') {
       content = JSON.stringify(data, null, 2);
       filename += '.json';
     } else {
       content = `<?xml version="1.0" encoding="UTF-8"?>
-<StellarInvoice>
-  <InvoiceHash>${data.invoiceHash}</InvoiceHash>
+<MidnightInvoice>
+  <InvoiceId>${data.invoiceId}</InvoiceId>
   <Network>${data.network}</Network>
-  <RiskTier>${data.riskTier}</RiskTier>
+  <ContractAddress>${data.contractAddress}</ContractAddress>
+  <Circuit>${data.circuit}</Circuit>
+  <Nullifier>${data.nullifier}</Nullifier>
   <ReputationScore>${data.reputationScore}</ReputationScore>
   <ExportedAt>${data.timestamp}</ExportedAt>
-</StellarInvoice>`;
+</MidnightInvoice>`;
       filename += '.xml';
     }
     
@@ -70,7 +90,7 @@ export default function VerifyInvoice() {
     link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
-    showToast(`Invoice successfully exported as ${format.toUpperCase()}! 💾`, 'success');
+    showToast(`Invoice proof exported as ${format.toUpperCase()}! 💾`, 'success');
   };
 
   const handleVerify = async () => {
@@ -79,66 +99,59 @@ export default function VerifyInvoice() {
     setSuccess(false);
 
     try {
-      if (!(await isConnected())) {
-        throw new Error('Client: Please connect your Freighter wallet to confirm.');
-      }
-      
-      const { address: pubKey } = await getAddress() as any;
-      const account = await loadAccount(pubKey);
-      const contract = new Contract(CONTRACTS.invoiceToken);
-      
-      let hexHash = id;
-      if (hexHash.length < 64) hexHash = hexHash.padEnd(64, '0');
-      if (hexHash.length > 64) hexHash = hexHash.substring(0, 64);
-      
-      const args = [
-        StellarSdk.nativeToScVal(pubKey, { type: 'address' }),
-        StellarSdk.nativeToScVal(Buffer.from(hexHash, 'hex')),
-        StellarSdk.nativeToScVal(98, { type: 'u32' }),
-      ];
+      showToast('Starting proveAccess Zero-Knowledge pipeline...', 'info');
 
-      const txBuilder = new StellarSdk.TransactionBuilder(account, {
-        fee: '10000',
-        networkPassphrase: TESTNET_NETWORK_PASSPHRASE,
-      }).addOperation(
-        contract.call('mint_token', ...args)
-      ).setTimeout(30);
+      const result = await executeProveAccessPipeline({
+        invoiceId: id,
+        clientPubkey: 'mn1q8u3kvfm89dcj4e6tr25ha7kp92k',
+        secret: invoiceDetails?.secret || 'sec_default_secret',
+        amount: invoiceDetails?.amount || 5000,
+        salt: invoiceDetails?.salt || 'salt_default',
+        onStepChange: (step, detail) => {
+          setPipelineDetail(detail);
+          showToast(detail, 'info');
+        }
+      });
 
-      const result = await submitTransaction(txBuilder, pubKey);
-      
-      // Mark the local invoice as verified
+      setTxHash(result.txHash || null);
+      setNullifier(result.nullifier || null);
+
+      // Mark the local invoice as verified on-chain
       const localInvoices = JSON.parse(localStorage.getItem('invoiceflow_local_invoices') || '[]');
       const updated = localInvoices.map((inv: any) => {
         if (inv.id === id || id.startsWith(inv.id)) {
-          return { ...inv, verified: true, tier: 'A' };
+          return { ...inv, verified: true, tier: 'A', nullifier: result.nullifier };
         }
         return inv;
       });
       localStorage.setItem('invoiceflow_local_invoices', JSON.stringify(updated));
 
       setSuccess(true);
-      showToast('Invoice verified and RWA Token minted on Stellar!', 'success');
+      showToast('proveAccess circuit verified! Invoice tokenized on Midnight Preprod.', 'success');
       
       setTimeout(() => {
         window.location.href = '/marketplace';
-      }, 3000);
+      }, 3500);
     } catch (err: any) {
       console.error(err);
-      const errMsg = err.message || 'Failed to mint token on-chain.';
+      const errMsg = err.message || 'Failed to execute proveAccess circuit on Midnight.';
       setError(errMsg);
       showToast(errMsg, 'error');
     } finally {
       setLoading(false);
+      setPipelineDetail(null);
     }
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '4rem auto', textAlign: 'center' }}>
+    <div style={{ maxWidth: '640px', margin: '3rem auto', textAlign: 'center', paddingBottom: '4rem' }}>
       <div className="panel">
-        <h1 style={{ marginBottom: '1rem', color: '#10b981' }}>Verify Invoice</h1>
-        <p style={{ marginBottom: '2rem', fontSize: '1.1rem', color: '#94a3b8' }}>
-          You have been asked to verify invoice hash <strong>{id?.substring(0, 16)}...</strong>. 
-          By confirming this, you acknowledge the invoice is authentic and you intend to pay it on the due date.
+        <h1 style={{ marginBottom: '1rem', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+          <span>🔐</span> Verify via proveAccess Circuit
+        </h1>
+        <p style={{ marginBottom: '2rem', fontSize: '1rem', color: '#94a3b8', lineHeight: 1.6 }}>
+          You are verifying invoice commitment ID <strong>{id?.substring(0, 16)}...</strong>. 
+          Executing this circuit proves ownership and membership in the Merkle Root on <strong>Midnight Preprod</strong> without exposing financial balances.
         </p>
 
         {/* Invoice Status Stepper Timeline */}
@@ -147,8 +160,8 @@ export default function VerifyInvoice() {
           <div style={{ position: 'absolute', top: '15px', left: '2rem', width: success ? '66%' : '0%', height: '2px', background: 'var(--primary-cyan)', transition: 'all 0.5s ease', zIndex: 0 }}></div>
 
           {[
-            { label: 'Registered', done: true },
-            { label: 'Verified', done: success },
+            { label: 'Committed', done: true },
+            { label: 'proveAccess', done: success },
             { label: 'Tokenized', done: success },
             { label: 'Settled', done: false }
           ].map((step, idx) => (
@@ -175,6 +188,13 @@ export default function VerifyInvoice() {
           ))}
         </div>
         
+        {pipelineDetail && (
+          <div style={{ padding: '0.85rem 1rem', background: 'rgba(168, 85, 247, 0.1)', border: '1px solid var(--nebula-purple)', color: '#fff', borderRadius: '0.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', textAlign: 'left' }}>
+            <span className="spinning">🌀</span>
+            <span>{pipelineDetail}</span>
+          </div>
+        )}
+
         {error && (
           <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#ef4444', borderRadius: '0.5rem', marginBottom: '1.5rem', textAlign: 'left' }}>
             ⚠️ {error}
@@ -182,22 +202,26 @@ export default function VerifyInvoice() {
         )}
 
         {success && (
-          <div style={{ padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10b981', color: '#10b981', borderRadius: '0.5rem', marginBottom: '1.5rem', textAlign: 'left' }}>
-            ✅ Invoice Verified & Tokenized Successfully! Redirecting to marketplace...
+          <div style={{ padding: '1.25rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10b981', color: '#10b981', borderRadius: '0.5rem', marginBottom: '1.5rem', textAlign: 'left' }}>
+            <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.5rem' }}>✅ proveAccess Circuit Executed & Verified!</div>
+            <div style={{ fontSize: '0.8rem', color: '#e2e8f0', fontFamily: 'Share Tech Mono, monospace', wordBreak: 'break-all', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div><strong>Preprod Tx:</strong> <a href={`https://explorer.preprod.midnight.network/tx/${txHash}`} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-cyan)', textDecoration: 'underline' }}>{txHash}</a></div>
+              <div><strong>Generated Nullifier:</strong> {nullifier?.substring(0, 28)}...</div>
+            </div>
           </div>
         )}
 
         <div style={{ backgroundColor: 'rgba(5, 7, 15, 0.8)', border: '1px solid var(--surface-border)', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '2rem', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ marginBottom: '0.5rem', wordBreak: 'break-all', fontSize: '0.9rem' }}><strong>Invoice Hash:</strong> {id}</div>
+            <div style={{ marginBottom: '0.5rem', wordBreak: 'break-all', fontSize: '0.85rem' }}><strong>Invoice ID Hash:</strong> #{id}</div>
             {invoiceDetails && (
               <>
-                <div style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}><strong>Client Name:</strong> {invoiceDetails.client}</div>
-                <div style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}><strong>Invoice Amount:</strong> ${invoiceDetails.amount} USDC</div>
+                <div style={{ marginBottom: '0.5rem', fontSize: '0.85rem' }}><strong>Client Name:</strong> {invoiceDetails.client}</div>
+                <div style={{ marginBottom: '0.5rem', fontSize: '0.85rem' }}><strong>Shielded Amount:</strong> ${invoiceDetails.amount} (Private)</div>
               </>
             )}
-            <div style={{ marginBottom: '0.5rem', color: 'var(--primary-cyan)', fontSize: '0.9rem' }}><strong>Network:</strong> Stellar Testnet</div>
-            <div style={{ color: 'var(--glowing-gold)', fontSize: '0.9rem' }}><strong>Simulated Risk Tier:</strong> Low Risk</div>
+            <div style={{ marginBottom: '0.5rem', color: 'var(--primary-cyan)', fontSize: '0.85rem' }}><strong>Network:</strong> Midnight Preprod (ZK-SNARK)</div>
+            <div style={{ color: 'var(--glowing-gold)', fontSize: '0.85rem' }}><strong>Contract:</strong> {MIDNIGHT_CONFIG.contractAddress.substring(0, 20)}...</div>
           </div>
           <div style={{ textAlign: 'center', marginLeft: '1rem' }}>
             <div style={{ fontSize: '0.65rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Reputation Score</div>
@@ -213,7 +237,7 @@ export default function VerifyInvoice() {
             className="btn btn-outline" 
             style={{ padding: '0.4rem 1rem', fontSize: '0.75rem', flex: 1, borderRadius: '0.5rem', borderColor: 'var(--primary-cyan)', color: 'var(--primary-cyan)' }}
           >
-            Export JSON
+            Export Proof (JSON)
           </button>
           <button 
             type="button" 
@@ -221,12 +245,12 @@ export default function VerifyInvoice() {
             className="btn btn-outline" 
             style={{ padding: '0.4rem 1rem', fontSize: '0.75rem', flex: 1, borderRadius: '0.5rem', borderColor: 'var(--primary-cyan)', color: 'var(--primary-cyan)' }}
           >
-            Export XML
+            Export Proof (XML)
           </button>
         </div>
 
-        <button onClick={handleVerify} className="btn btn-cyan" style={{ width: '100%', fontSize: '1.1rem', opacity: loading ? 0.7 : 1 }} disabled={loading}>
-          {loading ? 'Minting Trust Token...' : 'Confirm & Verify Authenticity'}
+        <button onClick={handleVerify} className="btn btn-cyan" style={{ width: '100%', fontSize: '1.05rem', opacity: loading ? 0.7 : 1 }} disabled={loading}>
+          {loading ? 'Executing Proof → Balance → Submit...' : 'Execute proveAccess Circuit Pipeline'}
         </button>
       </div>
     </div>

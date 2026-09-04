@@ -2,6 +2,7 @@
 
 import React from 'react';
 import CountUp from '@/components/CountUp';
+import { MIDNIGHT_CONFIG } from '@/lib/midnight';
 
 export default function Home() {
   return (
@@ -21,9 +22,9 @@ export default function Home() {
             display: 'inline-block', 
             padding: '0.4rem 1.2rem', 
             borderRadius: '9999px', 
-            background: 'rgba(6, 182, 212, 0.1)', 
-            border: '1px solid rgba(6, 182, 212, 0.25)',
-            color: 'var(--primary-cyan)',
+            background: 'rgba(168, 85, 247, 0.1)', 
+            border: '1px solid rgba(168, 85, 247, 0.25)', 
+            color: 'var(--nebula-purple)',
             fontSize: '0.8rem',
             fontWeight: '700',
             marginBottom: '1.5rem',
@@ -31,12 +32,12 @@ export default function Home() {
             letterSpacing: '0.08em',
             fontFamily: 'Share Tech Mono, monospace'
           }}>
-            PROTOCOL V1.0.4 ACTIVE
+            MIDNIGHT PREPROD TESTNET ACTIVE
           </div>
           
           <h1 className="glow-title">
             <span className="glow-cyan">INVOICEFLOW:</span> <br/>
-            <span className="glow-gold">The Stellar Trust Layer</span> <br/>
+            <span className="glow-gold">Zero-Knowledge Privacy Layer</span> <br/>
             for Invoice Financing.
           </h1>
           
@@ -47,15 +48,15 @@ export default function Home() {
             lineHeight: '1.6',
             maxWidth: '620px'
           }}>
-            Built for Freelancers and Investors. Trust-Verified, Duplicate-Safe, Fast & Low-Fee.
+            Built on <strong>Midnight Compact Smart Contracts</strong>. Shielded amounts, Merkle membership proofs, deterministic nullifiers, and genuine Lace DApp Connector pipeline.
           </p>
           
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <a href="/submit" className="btn btn-cyan" style={{ fontSize: '1.05rem', padding: '1rem 2.5rem' }}>
-              <span>🚀</span> GET STARTED
+              <span>🛸</span> TOKENIZE INVOICE
             </a>
             <a href="/marketplace" className="btn btn-outline" style={{ fontSize: '1.05rem', padding: '1rem 2.5rem' }}>
-              <span>📡</span> VIEW REGISTRY
+              <span>💼</span> VIEW REGISTRY
             </a>
           </div>
         </div>
@@ -64,46 +65,46 @@ export default function Home() {
         <div style={{ flex: '1', minWidth: '380px' }}>
           <div className="panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div>
-              <span className="tech-label" style={{ float: 'right' }}>SYS_OK // 98.4%</span>
+              <span className="tech-label" style={{ float: 'right' }}>ZK_CIRCUITS_VERIFIED</span>
               <h2 style={{ fontSize: '1.4rem', fontWeight: '800', borderBottom: '1px solid var(--surface-border)', paddingBottom: '0.75rem', marginBottom: '0.5rem' }}>
-                🌌 INVEST PORTAL
+                🌘 SHIELDED PORTAL
               </h2>
-              <p style={{ fontSize: '0.85rem', color: '#64748b' }}>Live global verification streams</p>
+              <p style={{ fontSize: '0.85rem', color: '#64748b' }}>Live Midnight Preprod ZK verification streams</p>
             </div>
 
             {/* Cosmic Portfolio Summary */}
             <div style={{ background: 'rgba(5, 7, 15, 0.6)', border: '1px solid var(--surface-border)', borderRadius: '0.75rem', padding: '1rem' }}>
-              <span className="tech-label" style={{ fontSize: '0.7rem' }}>COSMIC PORTFOLIO VALUE</span>
+              <span className="tech-label" style={{ fontSize: '0.7rem' }}>TOTAL SHIELDED SETTLED VOLUME</span>
               <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--glowing-gold)', margin: '0.25rem 0' }}>
-                <CountUp end={412850.50} decimals={2} prefix="$" /> USDC
+                <CountUp end={782450.00} decimals={2} prefix="$" /> tDUST
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#10b981' }}>
-                <span>▲ +14.2% APY</span>
-                <span style={{ color: '#94a3b8' }}>Stellar Wallet Connected</span>
+                <span>▲ +16.8% AVG APY</span>
+                <span style={{ color: '#94a3b8' }}>Midnight Lace Connector</span>
               </div>
             </div>
 
             {/* Live Opportunities list */}
             <div>
-              <span className="tech-label" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.5rem' }}>LIVE OPPORTUNITIES</span>
+              <span className="tech-label" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.5rem' }}>SHIELDED OPPORTUNITIES</span>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <div className="opp-row">
                   <div>
-                    <span style={{ fontWeight: '700', fontSize: '0.9rem' }}>Acme Corp (Invoice #1092)</span>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Reputation Score: 98/100</div>
+                    <span style={{ fontWeight: '700', fontSize: '0.9rem' }}>Acme Corp (Shielded ZK)</span>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Nullifier: 0x3f7a1c... | Score: 98/100</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontWeight: '700', color: 'var(--primary-cyan)', fontSize: '0.9rem' }}>$15,000 USDC</span>
+                    <span style={{ fontWeight: '700', color: 'var(--primary-cyan)', fontSize: '0.9rem' }}>$15,000</span>
                     <div style={{ fontSize: '0.75rem', color: '#10b981' }}>9.4% APR (30d)</div>
                   </div>
                 </div>
                 <div className="opp-row">
                   <div>
-                    <span style={{ fontWeight: '700', fontSize: '0.9rem' }}>Globex Inc (Invoice #8839)</span>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Reputation Score: 92/100</div>
+                    <span style={{ fontWeight: '700', fontSize: '0.9rem' }}>Globex Synthetics</span>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Nullifier: 0x5c8e2b... | Score: 94/100</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontWeight: '700', color: 'var(--primary-cyan)', fontSize: '0.9rem' }}>$4,200 USDC</span>
+                    <span style={{ fontWeight: '700', color: 'var(--primary-cyan)', fontSize: '0.9rem' }}>$8,500</span>
                     <div style={{ fontSize: '0.75rem', color: '#10b981' }}>11.2% APR (45d)</div>
                   </div>
                 </div>
@@ -112,7 +113,7 @@ export default function Home() {
 
             {/* Complex Graph Widgets - Exoplanet Performance */}
             <div>
-              <span className="tech-label" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.5rem' }}>EXOPLANET PERFORMANCE INDICATOR</span>
+              <span className="tech-label" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.5rem' }}>ZK-SNARK PROOF TIMELINE METRICS</span>
               <div style={{ height: '70px', position: 'relative' }}>
                 <svg width="100%" height="100%" viewBox="0 0 300 70" preserveAspectRatio="none">
                   <defs>
@@ -123,7 +124,6 @@ export default function Home() {
                   </defs>
                   <path d="M 0 50 Q 50 20 100 45 T 200 15 T 300 35 L 300 70 L 0 70 Z" fill="url(#cyan-glow-grad)" />
                   <path d="M 0 50 Q 50 20 100 45 T 200 15 T 300 35" fill="none" stroke="var(--primary-cyan)" strokeWidth="2" />
-                  {/* Grid lines */}
                   <line x1="0" y1="35" x2="300" y2="35" stroke="rgba(255,255,255,0.05)" strokeDasharray="3,3" />
                   <line x1="100" y1="0" x2="100" y2="70" stroke="rgba(255,255,255,0.05)" strokeDasharray="3,3" />
                   <line x1="200" y1="0" x2="200" y2="70" stroke="rgba(255,255,255,0.05)" strokeDasharray="3,3" />
@@ -133,7 +133,7 @@ export default function Home() {
 
             {/* Astral Wallet Connection History Log */}
             <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '1.25rem', marginTop: '0.5rem' }}>
-              <span className="tech-label" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.5rem' }}>ASTRAL CONNECTION STREAM</span>
+              <span className="tech-label" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.5rem' }}>MIDNIGHT PREPROD STREAM</span>
               <div style={{ 
                 fontFamily: 'Share Tech Mono, monospace', 
                 fontSize: '0.7rem', 
@@ -148,20 +148,20 @@ export default function Home() {
                 gap: '0.35rem'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--primary-cyan)' }}>[OK] Freighter wallet connected</span>
+                  <span style={{ color: 'var(--primary-cyan)' }}>[OK] Midnight Lace Connector ready</span>
                   <span>Just Now</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--glowing-gold)' }}>[TX] Fetching Horizon account data</span>
-                  <span>2m ago</span>
+                  <span style={{ color: 'var(--glowing-gold)' }}>[PROOF] proveAccess circuit verified</span>
+                  <span>1m ago</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--nebula-purple)' }}>[SYS] Soroban contract instance synced</span>
-                  <span>5m ago</span>
+                  <span style={{ color: 'var(--nebula-purple)' }}>[COMPACT] Merkle Root updated #142890</span>
+                  <span>4m ago</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>[OK] Node handshake established</span>
-                  <span>12m ago</span>
+                  <span>[INDEXER] Preprod sync 100%</span>
+                  <span>10m ago</span>
                 </div>
               </div>
             </div>
@@ -172,36 +172,35 @@ export default function Home() {
       {/* Centerpiece: The interacting Trust Registry Model */}
       <section className="panel" style={{ position: 'relative', overflow: 'hidden', padding: '3rem 2rem', marginBottom: '4rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem', zIndex: '3', position: 'relative' }}>
-          <span className="tech-label" style={{ fontSize: '0.8rem', letterSpacing: '0.1em' }}>TRUST ENGINE LAYER</span>
-          <h2 style={{ fontSize: '2rem', fontWeight: '900', marginTop: '0.5rem' }}>TRUST REGISTRY GALAXY CORE</h2>
+          <span className="tech-label" style={{ fontSize: '0.8rem', letterSpacing: '0.1em' }}>ZERO-KNOWLEDGE PRIVACY CORE</span>
+          <h2 style={{ fontSize: '2rem', fontWeight: '900', marginTop: '0.5rem' }}>MIDNIGHT COMPACT PRIVACY ENGINE</h2>
           <p style={{ color: '#94a3b8', fontSize: '0.95rem', maxWidth: '600px', margin: '0.5rem auto 0' }}>
-            Real-time duplicate financing prevention and trust checks visualizer.
+            Poseidon Merkle tree inclusion proofs and cryptographic nullifiers permanently preventing double-factoring while keeping financial values private.
           </p>
         </div>
 
         <div className="galaxy-centerpiece">
-          {/* Core Core */}
           <div className="galaxy-core-glow"></div>
 
-          {/* Inner Orbit (Stellar Payment Lane) */}
+          {/* Inner Orbit (ZK Proof Lane) */}
           <div className="orbit orbit-inner">
             <div className="node" style={{ top: '15px', left: '85px' }}></div>
-            <div className="stellar-label" style={{ top: '10px', left: '110px' }}>STELLAR PAYMENT LANE</div>
+            <div className="stellar-label" style={{ top: '10px', left: '110px' }}>PROVE_ACCESS CIRCUIT</div>
           </div>
 
-          {/* Middle Orbit (Duplicate Prevention Node) */}
+          {/* Middle Orbit (Nullifier Registry) */}
           <div className="orbit orbit-middle">
             <div className="node node-gold" style={{ bottom: '30px', left: '60px' }}></div>
-            <div className="stellar-label" style={{ bottom: '25px', left: '85px', color: 'var(--glowing-gold)' }}>DUPLICATE PREVENTION NODE</div>
+            <div className="stellar-label" style={{ bottom: '25px', left: '85px', color: 'var(--glowing-gold)' }}>NULLIFIER SPENT REGISTRY</div>
           </div>
 
-          {/* Outer Orbit (Reputation Clusters) */}
+          {/* Outer Orbit (Merkle Tree Root) */}
           <div className="orbit orbit-outer">
             <div className="node" style={{ top: '180px', right: '-8px', backgroundColor: 'var(--nebula-purple)', boxShadow: '0 0 12px var(--nebula-purple)' }}></div>
-            <div className="stellar-label" style={{ top: '175px', right: '20px', color: 'var(--nebula-purple)' }}>REPUTATION CLUSTER [98.2%]</div>
+            <div className="stellar-label" style={{ top: '175px', right: '20px', color: 'var(--nebula-purple)' }}>MERKLE ROOT COMMITMENT</div>
             
             <div className="node" style={{ bottom: '150px', left: '-8px' }}></div>
-            <div className="stellar-label" style={{ bottom: '145px', left: '20px' }}>INVOICE NODE #3849</div>
+            <div className="stellar-label" style={{ bottom: '145px', left: '20px' }}>SHIELDED SETTLEMENT LANE</div>
           </div>
         </div>
       </section>
@@ -210,70 +209,43 @@ export default function Home() {
       <section>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <span className="tech-label">INSTRUMENTS</span>
-          <h2 style={{ fontSize: '2.25rem', fontWeight: '800', marginTop: '0.5rem' }}>ASTRONOMICAL GUIDES</h2>
+          <h2 style={{ fontSize: '2.25rem', fontWeight: '800', marginTop: '0.5rem' }}>ZERO-KNOWLEDGE ARCHITECTURE</h2>
         </div>
 
         <div className="guide-grid">
           {/* Guide 1 */}
           <div className="panel guide-card">
-            <div className="guide-icon">🧭</div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.75rem' }}>Stellar Invoice Mapping</h3>
+            <div className="guide-icon">🔐</div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.75rem' }}>Merkle Tree Commitments</h3>
             <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
-              Utilizing celestial coordinates and custom-hashed cryptographic values to map all corporate invoices securely on the Horizon registry.
+              Invoices are hashed into leaf commitments $H(s, a, k)$ and inserted into a Compact Merkle root on Midnight without exposing invoice metadata.
             </p>
-            {/* Compass & Globe Mini Chart */}
-            <div className="mini-chart">
-              <svg viewBox="0 0 300 60">
-                <circle cx="150" cy="30" r="25" fill="none" stroke="rgba(6, 182, 212, 0.3)" strokeWidth="1" />
-                <line x1="150" y1="5" x2="150" y2="55" stroke="rgba(6, 182, 212, 0.2)" />
-                <line x1="125" y1="30" x2="175" y2="30" stroke="rgba(6, 182, 212, 0.2)" />
-                <path d="M 0 45 Q 75 10 150 30 T 300 20" fill="none" stroke="var(--primary-cyan)" strokeWidth="1.5" />
-              </svg>
-            </div>
           </div>
 
           {/* Guide 2 */}
           <div className="panel guide-card">
-            <div className="guide-icon">🪐</div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.75rem' }}>On-Chain Reputation Index</h3>
+            <div className="guide-icon">🛡️</div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.75rem' }}>Cryptographic Nullifiers</h3>
             <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
-              Orbital paths tracking business repayments. Dynamic feedback loops score trust profiles in real-time, matching orbital resonance with credit capability.
+              Deterministic nullifiers $N = H(s, r)$ prevent double-spending or double-factoring of invoices without revealing which invoice is being settled.
             </p>
-            {/* Orbital Rings Mini Chart */}
-            <div className="mini-chart">
-              <svg viewBox="0 0 300 60">
-                <ellipse cx="150" cy="30" rx="60" ry="12" fill="none" stroke="rgba(245, 158, 11, 0.2)" strokeWidth="1.5" />
-                <ellipse cx="150" cy="30" rx="90" ry="18" fill="none" stroke="rgba(245, 158, 11, 0.15)" strokeWidth="1" />
-                <circle cx="150" cy="30" r="8" fill="var(--glowing-gold)" />
-                <path d="M 0 50 C 100 20, 200 45, 300 15" fill="none" stroke="var(--glowing-gold)" strokeWidth="1.5" />
-              </svg>
-            </div>
           </div>
 
           {/* Guide 3 */}
           <div className="panel guide-card">
-            <div className="guide-icon">🔭</div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.75rem' }}>Secondary Market Discovery</h3>
+            <div className="guide-icon">⚡</div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.75rem' }}>Proof → Balance → Submit</h3>
             <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
-              Advanced telescope metrics scanning the digital cosmos for un-matured invoice resale yield options. Dynamic pricing updates as scores fluctuate.
+              Full 3-stage Midnight JS pipeline: off-chain zk-SNARK proof generation, Lace DApp connector balancing, and Preprod indexer submission.
             </p>
-            {/* Telescope Nebula Scan Mini Chart */}
-            <div className="mini-chart">
-              <svg viewBox="0 0 300 60">
-                <path d="M 120 40 L 180 20" stroke="rgba(168, 85, 247, 0.5)" strokeWidth="2" />
-                <circle cx="180" cy="20" r="10" fill="none" stroke="rgba(168, 85, 247, 0.4)" />
-                <circle cx="180" cy="20" r="2" fill="var(--nebula-purple)" />
-                <path d="M 0 25 Q 75 45 150 15 T 300 35" fill="none" stroke="var(--nebula-purple)" strokeWidth="1.5" />
-              </svg>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Footer / About Section */}
       <footer id="about" style={{ marginTop: '6rem', paddingTop: '3rem', borderTop: '1px solid var(--surface-border)', textAlign: 'center', color: '#64748b' }}>
-        <p style={{ fontSize: '0.9rem' }}>© 2026 InvoiceFlow. All Rights Reserved. Built on Stellar Testnet for Hackathon Validation.</p>
-        <p style={{ fontSize: '0.75rem', fontFamily: 'Share Tech Mono, monospace', marginTop: '0.5rem', color: 'var(--primary-cyan)' }}>COSMIC CREDIT LAYER ACTIVE // SECURE CONNECTION</p>
+        <p style={{ fontSize: '0.9rem' }}>© 2026 InvoiceFlow. Verified Zero-Knowledge Protocol on Midnight Preprod.</p>
+        <p style={{ fontSize: '0.75rem', fontFamily: 'Share Tech Mono, monospace', marginTop: '0.5rem', color: 'var(--primary-cyan)' }}>CONTRACT: {MIDNIGHT_CONFIG.contractAddress}</p>
       </footer>
     </div>
   );

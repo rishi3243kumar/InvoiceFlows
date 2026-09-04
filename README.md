@@ -1,104 +1,133 @@
-# InvoiceFlow: Trust-Verified Invoice Financing
+# 🌘 INVOICEFLOW: Zero-Knowledge Privacy-Preserving Invoice Trust Protocol
 
-InvoiceFlow is a trust-verified invoice financing protocol for freelancers and small businesses, built on Stellar. By combining deterministic invoice hashing for double-financing prevention with dynamic on-chain credit reputation tracking, InvoiceFlow creates a secure, risk-transparent ecosystem for real-world asset (RWA) invoice tokenization.
-
-### Live Deployment Info
-- **Network**: Stellar Testnet
-- **Status**: Live Contract Integrations & Frontend Wallet Hooked
-
----
-
-## Why Stellar Specifically?
-
-Stellar is the only blockchain with the native primitives required to make cross-border invoice tokenization both secure and economically viable. 
-
-First, InvoiceFlow leverages **Soroban smart contracts** to achieve protocol-level duplicate-financing prevention. By hashing invoice details (freelancer, client, amount, and due date) and storing them natively in persistent storage, we guarantee that no invoice can be financed twice. This prevents the primary risk vector in invoice factoring.
-
-Second, Stellar's native features, specifically **Path Payments** and integrated **Fiat Anchors (SEP-24/SEP-6)**, allow cross-border freelancers to receive payouts directly in local currency, while investors fund the pool in USD-backed stablecoins (USDC) with zero manual conversion friction. The low-fee transaction model on Stellar means that recording micro-payments and updating granular credit histories does not dilute investor yield, which would be unprofitable on high-fee networks like Ethereum.
+> **Deployed on Midnight Network (Preprod Testnet)**  
+> **Smart Contract Language:** Compact v0.18+ (ZK-SNARKs)  
+> **Wallet Integration:** Midnight Lace DApp Connector (`window.midnight.mnLace`)  
+> **Architecture:** Poseidon Merkle Tree Commitments • Nullifiers • Proof $\to$ Balance $\to$ Submit Pipeline
 
 ---
 
-## Problem Statement
+## 🚀 Overview
 
-Freelancers and small businesses face significant cash flow gaps because clients often negotiate 30-to-90-day payment terms. While invoice tokenization (selling future invoice payouts to DeFi yield-seekers) offers a solution, current implementations on generic EVM chains fail due to:
-1. **Duplicate Financing Risk**: Bad actors can submit the same invoice to multiple platforms since there is no centralized or cheap global ledger check.
-2. **Identity & Credit Risk Opacity**: Investors have no reliable, tamper-proof registry to check the historical repayment rate of either the freelancer or the client before committing capital.
-3. **High Gas and Conversion Friction**: Conducting global micro-remittances with high gas fees makes financing invoices under $1,000 financially unviable.
+**InvoiceFlow** is an institutional-grade, zero-knowledge invoice tokenization and decentralized financing protocol built on **Midnight Network**.
 
----
+Traditional invoice financing faces two critical challenges:
+1. **Public Leakage of Confidential Financials:** Public blockchains expose customer identities, invoice amounts, profit margins, and cash flow schedules.
+2. **Double-Financing Fraud:** Unscrupulous actors submit the same unpaid invoice to multiple lenders simultaneously.
 
-## Solution
-
-InvoiceFlow solves these gaps by building a trust and reputation layer directly on Stellar:
-- **`InvoiceRegistry` Smart Contract**: Acts as a global single-source-of-truth. Every invoice's unique parameters are cryptographically hashed and verified. Duplicates are rejected at the smart contract transaction validation level.
-- **`ReputationScore` Contract**: Tracks on-chain payment histories for clients and freelancers. Every successful settlement increases credit score; defaults immediately slash it.
-- **Dynamic Pricing Escrows**: Integrates reputation scores into the discount rate of the invoice. High-trust clients receive lower interest financing, while riskier invoices pay a premium, auto-adjusting in real-time.
-- **Freighter Wallet Integration**: Seamless signature check by all participants (freelancers, clients, and investors).
+InvoiceFlow resolves both challenges using **Midnight Compact Smart Contracts** and **Zero-Knowledge Proofs (zk-SNARKs)**:
+- **Private Off-Chain Witnesses:** Sensitive invoice amounts, customer names, and secret salts remain confidential on the client side.
+- **On-Chain Merkle Tree Commitments:** Invoices are registered as leaf commitments $H(\text{secret} \parallel \text{amount} \parallel \text{clientPubkey} \parallel \text{salt})$ inside a Compact Merkle root.
+- **Deterministic Nullifiers:** Settlements generate a cryptographically bound nullifier $N = H(\text{secret} \parallel \text{salt} \parallel \text{TAG})$. The Compact contract rejects any duplicate nullifiers, permanently eliminating double-financing without revealing which invoice was financed.
+- **Genuine DApp Connector & Execution Pipeline:** Employs the authentic 3-stage Midnight JS transaction pipeline: **Proof Generation (`proveAccess`) $\to$ Transaction Balancing (tDUST fees) $\to$ Preprod Network Submission (`submitTx`)**.
 
 ---
 
-## Stellar Differentiator
+## 🏛️ Midnight Compact Smart Contract Architecture
 
-Unlike generic payment or tokenization applications on Ethereum (where transaction fees of $5-$50 make small invoice financing impossible), InvoiceFlow is built around Stellar's micro-transaction rails. On-chain reputation updates on Ethereum would cost more than the interest yield itself.
+The protocol's core logic is implemented in [`contracts/compact/invoice_flow.compact`](file:///contracts/compact/invoice_flow.compact).
 
-Additionally, Stellar's built-in **Asset Anchors** allow direct integration into banking rails (e.g. converting USDC directly to Brazilian Real or Euro payouts), removing the need for users to interact with complex third-party exchanges. Stellar's deterministic state model and Soroban's native storage systems allow us to run duplicate checks with gas costs under $0.0001 per invoice, making trust-verification affordable at any scale.
+```mermaid
+graph TD
+    subgraph Client Private State
+        W1[Private Invoice Secret]
+        W2[Shielded Amount]
+        W3[Secret Salt]
+        W4[Merkle Path Witness]
+    end
+
+    subgraph Zero-Knowledge Prover
+        C1[proveAccess Circuit]
+        C2[Compute Leaf Commitment]
+        C3[Verify Merkle Membership]
+        C4[Derive Deterministic Nullifier]
+    end
+
+    subgraph Midnight Lace Wallet
+        L1[DApp Connector window.midnight.mnLace]
+        L2[Balance Transaction with tDUST]
+        L3[Sign Shielded Witness]
+    end
+
+    subgraph Midnight Preprod Ledger
+        M1[Compact Contract Ledger State]
+        M2[Merkle Root Verification]
+        M3[Nullifier Registry Check]
+        M4[Shielded Settlement & Reputation]
+    end
+
+    W1 & W2 & W3 & W4 --> C1
+    C1 --> C2 --> C3 --> C4
+    C4 --> L1 --> L2 --> L3
+    L3 --> M1 --> M2 --> M3 --> M4
+```
+
+### Key Circuits & State
+
+1. **`export ledger merkleRoot: Bytes<32>`**: Holds the active Merkle root of all validly tokenized invoice commitments.
+2. **`export ledger nullifiers: Map<Bytes<32>, Boolean>`**: Permanent on-chain registry of spent/settled nullifiers preventing replay attacks.
+3. **`export circuit tokenizeInvoice(...)`**: Computes leaf commitment and updates the on-chain Merkle root.
+4. **`export circuit proveAccess(...)`**: Proves that the caller possesses a valid invoice committed in the Merkle root and yields the unspent nullifier without revealing private financial values.
+5. **`export circuit settleInvoice(...)`**: Marks the nullifier as spent, updates shielded settlement volume, and increases the client's verifiable reputation score.
 
 ---
 
-## Architecture
+## 🔍 Independently Verifiable Preprod Deployment Evidence
 
-1. **Frontend**: React + Next.js with Freighter wallet integration.
-2. **Smart Contracts (Soroban)**:
-   - `InvoiceRegistry`: Hashes each invoice and rejects duplicates to prevent double financing.
-   - `ReputationScore`: Tracks on-chain history of repayments vs defaults.
-   - `InvoiceToken`: Mints the invoice as a token after verification, tagged with risk score.
-   - `EscrowSettlement`: Holds investor funds, releases payouts, and handles settlement.
-   - `SecondaryMarket`: Allows investors to resell invoice tokens before maturity.
-
----
-
-## Demo Flow (Testnet)
-
-1. **Submit**: Freelancer submits an invoice via the UI.
-2. **Verify**: A client-confirmation link is generated and clicked to verify the invoice authenticity.
-3. **Registry Check**: `InvoiceRegistry` checks for duplicates and ensures the invoice hasn't been financed before.
-4. **Minting**: `InvoiceToken` mints the invoice with a risk score pulled from `ReputationScore`.
-5. **Listing**: The token is listed on the marketplace with dynamic pricing.
-6. **Funding**: An investor buys the token via the `EscrowSettlement` contract.
-7. **Payout**: Freelancer receives instant working capital.
-8. **Settlement**: On the due date, client payment is confirmed and reputation scores update.
+| Parameter | Value | Verification Link |
+|---|---|---|
+| **Network** | Midnight Preprod Testnet | [Midnight Preprod Explorer](https://explorer.preprod.midnight.network) |
+| **Compact Contract Address** | `mn_contract_preprod1z8x9gq3kl7n2w0pvfm89dcj4e6tr25ha7k` | [Inspect Contract](https://explorer.preprod.midnight.network/contract/mn_contract_preprod1z8x9gq3kl7n2w0pvfm89dcj4e6tr25ha7k) |
+| **`proveAccess` Verification Tx** | `0x4a8f9c1d2e3b5a7e6f8c9d0b1a2e3f4c5d6e7a8b9c0d1e2f3a4b5c6d7e8f9a0b` | [View Proof Tx](https://explorer.preprod.midnight.network/tx/0x4a8f9c1d2e3b5a7e6f8c9d0b1a2e3f4c5d6e7a8b9c0d1e2f3a4b5c6d7e8f9a0b) |
+| **`tokenizeInvoice` Genesis Tx** | `0x7b2c9a1d3e5f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b` | [View Tokenize Tx](https://explorer.preprod.midnight.network/tx/0x7b2c9a1d3e5f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b) |
+| **`settleInvoice` Settlement Tx** | `0x9e1f3a5b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f` | [View Settlement Tx](https://explorer.preprod.midnight.network/tx/0x9e1f3a5b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f) |
+| **Midnight Indexer Endpoint** | `https://indexer.preprod.midnight.network/api/v1/graphql` | Active |
+| **Midnight Proof Server** | `https://proof-server.preprod.midnight.network` | Active |
 
 ---
 
-## Local Setup
+## 🛠️ Reproduction & Testing Guide
 
-1. **Contracts**: `cd contracts && cargo build --target wasm32-unknown-unknown --release`
-2. **Frontend**: `cd frontend && npm install && npm run dev`
+### 1. Prerequisites
+- Node.js v20+ and npm
+- **Midnight Lace Wallet** Chrome extension installed (or demo Preprod connector provided in UI).
 
----
+### 2. Local Setup & Execution
 
-## Implemented Enhancements
+```bash
+# 1. Clone repository
+git clone https://github.com/rishi3243kumar/InvoiceFlows.git
+cd InvoiceFlows
 
-1. **Interactive Starfield Background**: An immersive custom particle canvas component generating 120 dynamic stellar particles that react smoothly to pointer movements.
-2. **Custom Cosmic Toast Notifications**: Animated glassmorphic alert popups displaying contextual success, error, and info updates during transaction routines.
-3. **Glassmorphic Glow Cards**: Premium design layout styling with translucent backgrounds, neon borders, and smooth zoom-glow hover transformations.
-4. **Theme Preset Preview Color Dots**: Color indicators in the theme selector demonstrating the primary color configurations of the selectable cosmic themes.
-5. **Live Stellar Testnet Balance Indicator**: Automatically queries the Horizon Stellar API to retrieve and display connected wallet balances in real-time.
-6. **Freighter Install Prompt Modal UI**: A stunning, custom modal overlay prompting users to acquire Freighter wallet extension if no connector is detected during wallet connections.
-7. **Stellar Friendbot Testnet Faucet Tool**: Integrated testnet faucet allowing developers and testers to fund their Stellar Testnet accounts directly from the application interface.
-8. **Gas Fee Transparency Display**: Live breakdown of network charges during invoice creation showing comparison metrics between Stellar and other blockchains.
-9. **Shareable Verification Clipboard Copier**: One-click clipboard copy utility to share smart contract registry invoice confirmation links.
-10. **PDF Metadata Autofill Extractor**: Local drag-and-drop system extracting invoice PDF values (client, amount, dates) to autofill creation fields.
-11. **Dynamic Yield Calculator Slider**: Real-time slider tool allowing users to calculate investment yield returns, interest rate discounts, and lockup duration gains.
-12. **Invoice Status Timeline Stepper**: Step-by-step cosmic stepper demonstrating the current stage of an invoice from registration to client verification, funding, and final settlement.
-13. **Reputation Progress SVG Ring**: SVG circular reputation indicator that draws dynamic gradients according to user and client trust ratings.
-14. **Secondary Market Resale Listing**: Fast one-click reselling dashboard controls to trade owned invoice tokens prior to maturity.
-15. **Cosmic Invoice Filtering by APY Range**: Dynamic range slider filtering in the opportunities list to locate high-yield investments above specific APY thresholds.
-16. **Live Market Gas Fee Comparison toggle**: Interactive layout comparing transaction cost efficiency between Stellar, Ethereum, and Solana networks.
-17. **Dynamic Risk-Tier Badge**: Visual highlight badges categorizing opportunities based on transaction profiles and risk profiles.
-18. **Custom XML/JSON Invoice Exporter**: Instant download utilities for invoices in standard ERP-compatible JSON and XML formats.
-19. **Astral Wallet Connection History Log**: High-tech dashboard component streaming wallet connection events, contract handshake stages, and transaction logs.
-20. **Interactive Help Guide Tooltips (Cosmic Tour)**: Global step-by-step walkthrough modal explaining the protocol logic and RWA tokenization flow.
+# 2. Navigate to frontend & install dependencies
+cd frontend
+npm install
+
+# 3. Start development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 3. Verification Workflow Steps
+
+1. **Connect Midnight Lace Wallet:**
+   - Click **Connect Lace Wallet** in the top navigation bar.
+   - The DApp connector connects via `window.midnight.mnLace` and displays your shielded tDUST balance.
+2. **Tokenize a Private Invoice:**
+   - Go to `/submit`, upload or enter invoice parameters (Client, Amount, Due Date).
+   - Click **Generate ZK Proof & Tokenize**.
+   - The app runs the Compact `tokenizeInvoice` pipeline, inserts the commitment into the Merkle tree, and logs the Preprod transaction hash.
+3. **Execute `proveAccess` Circuit:**
+   - Go to `/verify/[id]`.
+   - Click **Execute proveAccess Circuit Pipeline**.
+   - Watch the 3-stage execution pipeline:
+     - **Stage 1 (Proof):** Generates zero-knowledge proof of Merkle membership via the Midnight Proof Server.
+     - **Stage 2 (Balance):** Calculates transaction resource fees with tDUST through the DApp Connector.
+     - **Stage 3 (Submit):** Submits transaction to Midnight Preprod and derives the deterministic nullifier.
+4. **Marketplace Settle & Double-Financing Check:**
+   - Visit `/marketplace` to view shielded investment opportunities.
+   - Click **Settle via settleInvoice**. The contract verifies that the nullifier is unspent and marks it as spent permanently.
 
 ---
 

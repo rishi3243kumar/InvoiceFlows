@@ -1,0 +1,187 @@
+// ==============================================================================
+// INVOICEFLOW: Zero-Knowledge Privacy-Preserving Invoice Trust Protocol
+// Target Network: Midnight Preprod (Compact Smart Contract Standard v0.18+)
+// ==============================================================================
+
+module InvoiceFlow {
+    // --------------------------------------------------------------------------
+    // Public Ledger State (On-Chain)
+    // --------------------------------------------------------------------------
+    
+    // Merkle Root representing all verified invoice commitments
+    export ledger merkleRoot: Bytes<32>;
+    
+    // Nullifier registry to prevent double-financing / replay attacks
+    export ledger nullifiers: Map<Bytes<32>, Boolean>;
+    
+    // Total count of tokenized invoices registered on Midnight
+    export ledger invoiceCount: Counter;
+    
+    // Total settled volume in Midnight Shielded Tokens (tDUST)
+    export ledger totalSettledVolume: Counter;
+    
+    // Public registry mapping public invoice ID hash -> contract metadata
+    export ledger invoiceRegistrations: Map<Bytes<32>, InvoicePublicMetadata>;
+    
+    // Client Reputation Index (Public Score [0-100] derived from ZK settlements)
+    export ledger clientReputations: Map<Bytes<32>, Uint<16>>;
+
+    // --------------------------------------------------------------------------
+    // Data Structures
+    // --------------------------------------------------------------------------
+    
+    struct InvoicePublicMetadata {
+        dueTimestamp: Uint<64>,
+        riskTier: Uint<8>,
+        isSettled: Boolean,
+        registeredAt: Uint<64>
+    }
+
+    struct MerklePath {
+        leafIndex: Uint<32>,
+        pathElements: Vector<Bytes<32>, 16>,
+        pathIndices: Vector<Boolean, 16>
+    }
+
+    // --------------------------------------------------------------------------
+    // Witness Declarations (Private Client-Side Inputs)
+    // --------------------------------------------------------------------------
+    
+    witness getPrivateInvoiceSecret(): Bytes<32>;
+    witness getInvoiceAmount(): Uint<64>;
+    witness getInvoiceSalt(): Bytes<32>;
+    witness getMerklePath(): MerklePath;
+
+    // --------------------------------------------------------------------------
+    // Helper Cryptographic Functions
+    // --------------------------------------------------------------------------
+    
+    // Computes Pedersen/Poseidon leaf commitment H(secret || amount || clientPubkey || salt)
+    function computeLeafCommitment(
+        secret: Bytes<32>,
+        amount: Uint<64>,
+        clientPubkey: Bytes<32>,
+        salt: Bytes<32>
+    ): Bytes<32> {
+        return hash(secret, amount, clientPubkey, salt);
+    }
+
+    // Computes deterministic Nullifier N = H(secret || salt || "INVOICEFLOW_NULLIFIER")
+    function computeNullifier(secret: Bytes<32>, salt: Bytes<32>): Bytes<32> {
+        return hash(secret, salt, "INVOICEFLOW_NULLIFIER");
+    }
+
+    // Verifies Merkle inclusion proof inside the Zero-Knowledge circuit
+    function verifyMerkleMembership(
+        leaf: Bytes<32>,
+        root: Bytes<32>,
+        proof: MerklePath
+    ): Boolean {
+        var currentHash: Bytes<32> = leaf;
+        
+        for i in 0..16 {
+            if (proof.pathIndices[i]) {
+                currentHash = hash(proof.pathElements[i], currentHash);
+            } else {
+                currentHash = hash(currentHash, proof.pathElements[i]);
+            }
+        }
+        
+        return currentHash == root;
+    }
+
+    // --------------------------------------------------------------------------
+    // Exported Circuits (ZK Execution Pipeline)
+    // --------------------------------------------------------------------------
+
+    // Circuit 1: Constructor / Initializer
+    export circuit initialize(initialRoot: Bytes<32>): Void {
+        merkleRoot = initialRoot;
+    }
+
+    // Circuit 2: Tokenize Invoice into Merkle Tree
+    // Emits new commitment without exposing private financial values
+    export circuit tokenizeInvoice(
+        invoiceIdHash: Bytes<32>,
+        commitment: Bytes<32>,
+        newMerkleRoot: Bytes<32>,
+        dueTimestamp: Uint<64>,
+        riskTier: Uint<8>
+    ): Void {
+        // Ensure invoice ID has not already been registered
+        assert !invoiceRegistrations.member(invoiceIdHash) 
+            "Invoice ID already registered in trust registry";
+        
+        // Update on-chain Merkle Root
+        merkleRoot = newMerkleRoot;
+        
+        // Record public metadata
+        invoiceRegistrations.insert(invoiceIdHash, InvoicePublicMetadata {
+            dueTimestamp: dueTimestamp,
+            riskTier: riskTier,
+            isSettled: false,
+            registeredAt: 1725148800 // Sept 2026 Epoch
+        });
+        
+        invoiceCount.increment(1);
+    }
+
+    // Circuit 3: Prove Access & Authenticity (Proof -> Balance -> Submit)
+    // Client or Investor proves invoice exists in Merkle root and generates nullifier
+    export circuit proveAccess(
+        clientPubkey: Bytes<32>,
+        claimedInvoiceId: Bytes<32>
+    ): Bytes<32> {
+        // Query private witnesses
+        const secret = getPrivateInvoiceSecret();
+        const amount = getInvoiceAmount();
+        const salt = getInvoiceSalt();
+        const proof = getMerklePath();
+        
+        // Verify leaf commitment
+        const leaf = computeLeafCommitment(secret, amount, clientPubkey, salt);
+        const isValidMember = verifyMerkleMembership(leaf, merkleRoot, proof);
+        assert isValidMember "Invalid Merkle membership proof: invoice not committed";
+        
+        // Calculate and check nullifier
+        const nullifier = computeNullifier(secret, salt);
+        assert !nullifiers.member(nullifier) "Invoice nullifier already spent / settled";
+        
+        return nullifier;
+    }
+
+    // Circuit 4: Settle & Repay Invoice on Midnight
+    // Verifies nullifier, marks as spent, updates volume and reputation
+    export circuit settleInvoice(
+        invoiceIdHash: Bytes<32>,
+        nullifier: Bytes<32>,
+        settledAmount: Uint<64>,
+        clientHash: Bytes<32>
+    ): Void {
+        // Assert nullifier hasn't been spent
+        assert !nullifiers.member(nullifier) "Double-spend detected: nullifier already finalized";
+        
+        // Mark nullifier as spent permanently
+        nullifiers.insert(nullifier, true);
+        
+        // Update invoice public state
+        if (invoiceRegistrations.member(invoiceIdHash)) {
+            const metadata = invoiceRegistrations.lookup(invoiceIdHash);
+            invoiceRegistrations.insert(invoiceIdHash, InvoicePublicMetadata {
+                dueTimestamp: metadata.dueTimestamp,
+                riskTier: metadata.riskTier,
+                isSettled: true,
+                registeredAt: metadata.registeredAt
+            });
+        }
+        
+        // Update settled volume counter
+        totalSettledVolume.increment(settledAmount);
+        
+        // Boost client on-chain trust reputation
+        const currentRep = clientReputations.lookupWithDefault(clientHash, 95);
+        if (currentRep < 100) {
+            clientReputations.insert(clientHash, currentRep + 1);
+        }
+    }
+}
