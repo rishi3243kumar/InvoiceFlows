@@ -1,7 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
 import { getAddress, isConnected } from '@stellar/freighter-api';
 import { CONTRACTS, loadAccount, server, submitTransaction, TESTNET_NETWORK_PASSPHRASE } from '@/lib/soroban';
 import * as StellarSdk from '@stellar/stellar-sdk';
@@ -16,6 +16,25 @@ export default function VerifyInvoice() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const [invoiceDetails, setInvoiceDetails] = useState<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && id) {
+      const local = localStorage.getItem('invoiceflow_local_invoices');
+      if (local) {
+        try {
+          const parsed = JSON.parse(local);
+          const found = parsed.find((inv: any) => inv.id === id || id.startsWith(inv.id));
+          if (found) {
+            setInvoiceDetails(found);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }, [id]);
 
   const exportInvoice = (format: 'json' | 'xml') => {
     const data = {
@@ -65,39 +84,56 @@ export default function VerifyInvoice() {
       }
       
       const { address: pubKey } = await getAddress() as any;
-      const account = await loadAccount(pubKey);
-      
-      // We will mint the token on-chain as proof of verification
-      const contract = new Contract(CONTRACTS.invoiceToken);
-      
-      // mint_token(caller: Address, invoice_hash: BytesN<32>, risk_score: u32)
-      // Hash should be 32 bytes. We take the transaction hash (which is 32 bytes) or pad it.
-      let hexHash = id;
-      if (hexHash.length < 64) hexHash = hexHash.padEnd(64, '0');
-      if (hexHash.length > 64) hexHash = hexHash.substring(0, 64);
-      
-      const args = [
-        StellarSdk.nativeToScVal(pubKey, { type: 'address' }),
-        StellarSdk.nativeToScVal(Buffer.from(hexHash, 'hex')), // BytesN<32>
-        StellarSdk.nativeToScVal(98, { type: 'u32' }), // Hardcoding excellent risk score for MVP flow
-      ];
+      if (CONTRACTS.invoiceToken.includes('DUMMY')) {
+        // Simulation mode fallback for demo/reviewing when contracts are not deployed
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        
+        // Mark the local invoice as verified
+        const localInvoices = JSON.parse(localStorage.getItem('invoiceflow_local_invoices') || '[]');
+        const updated = localInvoices.map((inv: any) => {
+          if (inv.id === id || id.startsWith(inv.id)) {
+            return { ...inv, verified: true, tier: 'A' };
+          }
+          return inv;
+        });
+        localStorage.setItem('invoiceflow_local_invoices', JSON.stringify(updated));
+        
+        setSuccess(true);
+        showToast('Invoice verified and RWA Token minted on Stellar (Simulation Mode)!', 'success');
+        
+        setTimeout(() => {
+          window.location.href = '/marketplace';
+        }, 3000);
+      } else {
+        const account = await loadAccount(pubKey);
+        const contract = new Contract(CONTRACTS.invoiceToken);
+        
+        let hexHash = id;
+        if (hexHash.length < 64) hexHash = hexHash.padEnd(64, '0');
+        if (hexHash.length > 64) hexHash = hexHash.substring(0, 64);
+        
+        const args = [
+          StellarSdk.nativeToScVal(pubKey, { type: 'address' }),
+          StellarSdk.nativeToScVal(Buffer.from(hexHash, 'hex')),
+          StellarSdk.nativeToScVal(98, { type: 'u32' }),
+        ];
 
-      const txBuilder = new StellarSdk.TransactionBuilder(account, {
-        fee: '10000',
-        networkPassphrase: TESTNET_NETWORK_PASSPHRASE,
-      }).addOperation(
-        contract.call('mint_token', ...args)
-      ).setTimeout(30);
+        const txBuilder = new StellarSdk.TransactionBuilder(account, {
+          fee: '10000',
+          networkPassphrase: TESTNET_NETWORK_PASSPHRASE,
+        }).addOperation(
+          contract.call('mint_token', ...args)
+        ).setTimeout(30);
 
-      const result = await submitTransaction(txBuilder, pubKey);
-      
-      setSuccess(true);
-      showToast('Invoice verified and RWA Token minted on Stellar!', 'success');
-      
-      // Redirect to marketplace
-      setTimeout(() => {
-        window.location.href = '/marketplace';
-      }, 3000);
+        const result = await submitTransaction(txBuilder, pubKey);
+        
+        setSuccess(true);
+        showToast('Invoice verified and RWA Token minted on Stellar!', 'success');
+        
+        setTimeout(() => {
+          window.location.href = '/marketplace';
+        }, 3000);
+      }
       
     } catch (err: any) {
       console.error(err);
@@ -167,6 +203,12 @@ export default function VerifyInvoice() {
         <div style={{ backgroundColor: 'rgba(5, 7, 15, 0.8)', border: '1px solid var(--surface-border)', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '2rem', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ marginBottom: '0.5rem', wordBreak: 'break-all', fontSize: '0.9rem' }}><strong>Invoice Hash:</strong> {id}</div>
+            {invoiceDetails && (
+              <>
+                <div style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}><strong>Client Name:</strong> {invoiceDetails.client}</div>
+                <div style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}><strong>Invoice Amount:</strong> ${invoiceDetails.amount} USDC</div>
+              </>
+            )}
             <div style={{ marginBottom: '0.5rem', color: 'var(--primary-cyan)', fontSize: '0.9rem' }}><strong>Network:</strong> Stellar Testnet</div>
             <div style={{ color: 'var(--glowing-gold)', fontSize: '0.9rem' }}><strong>Simulated Risk Tier:</strong> Low Risk</div>
           </div>

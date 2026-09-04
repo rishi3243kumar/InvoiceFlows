@@ -21,7 +21,22 @@ export default function Marketplace() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const [invoices, setInvoices] = useState(DEFAULT_INVOICES);
+  const [invoices, setInvoices] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      const local = localStorage.getItem('invoiceflow_local_invoices');
+      if (local) {
+        try {
+          const parsed = JSON.parse(local);
+          // Only show verified invoices in the public marketplace
+          const verifiedLocal = parsed.filter((inv: any) => inv.verified);
+          return [...DEFAULT_INVOICES, ...verifiedLocal];
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+    return DEFAULT_INVOICES;
+  });
   const [filterTier, setFilterTier] = useState('ALL'); // ALL, A, B
   const [sortBy, setSortBy] = useState('YIELD'); // YIELD, PRICE
   const [minApy, setMinApy] = useState(5);
