@@ -126,10 +126,10 @@ export default function Header() {
           <span>🪐</span> HOME
         </a>
         <a href="/submit" className="nav-link">
-          <span>🛸</span> SENDER PORTAL
+          <span>🛸</span> SUBMIT
         </a>
         <a href="/marketplace" className="nav-link">
-          <span>💼</span> BUSINESS PAYMENTS
+          <span>💼</span> MARKETPLACE
         </a>
         <a href="#about" className="nav-link">
           <span>🌌</span> ABOUT
@@ -143,66 +143,56 @@ export default function Header() {
         </button>
       </nav>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         {/* Theme Selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <div style={{ display: 'flex', gap: '5px' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: themes[activeTheme]?.primary, transition: 'all 0.3s', boxShadow: `0 0 8px ${themes[activeTheme]?.primary}` }}></span>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: themes[activeTheme]?.gold, transition: 'all 0.3s', boxShadow: `0 0 8px ${themes[activeTheme]?.gold}` }}></span>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: themes[activeTheme]?.purple, transition: 'all 0.3s', boxShadow: `0 0 8px ${themes[activeTheme]?.purple}` }}></span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: themes[activeTheme]?.primary, transition: 'all 0.3s', boxShadow: `0 0 8px ${themes[activeTheme]?.primary}` }}></span>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: themes[activeTheme]?.gold, transition: 'all 0.3s', boxShadow: `0 0 8px ${themes[activeTheme]?.gold}` }}></span>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: themes[activeTheme]?.purple, transition: 'all 0.3s', boxShadow: `0 0 8px ${themes[activeTheme]?.purple}` }}></span>
           </div>
           <div style={{ position: 'relative' }}>
             <select 
               value={activeTheme} 
               onChange={handleThemeChange} 
               className="form-input" 
-            style={{ 
-              padding: '0.5rem 1.8rem 0.5rem 1rem', 
-              fontSize: '0.85rem', 
-              width: 'auto', 
-              background: 'rgba(13, 22, 54, 0.4)', 
-              borderColor: 'var(--surface-border)', 
-              borderRadius: '0.75rem',
-              color: 'var(--text-color)',
-              cursor: 'pointer',
-              outline: 'none',
-              fontFamily: 'inherit',
-              appearance: 'none',
-              WebkitAppearance: 'none',
-              MozAppearance: 'none'
-            }}
-          >
-            {themes.map((theme, i) => (
-              <option key={i} value={i} style={{ background: '#03050c', color: '#fff' }}>
-                {theme.name}
-              </option>
-            ))}
-          </select>
-          <div style={{ 
-            position: 'absolute', 
-            right: '10px', 
-            top: '50%', 
-            transform: 'translateY(-50%)', 
-            pointerEvents: 'none',
-            fontSize: '0.7rem',
-            color: '#64748b'
-          }}>
-        </div>
-        </div>
+              style={{ 
+                padding: '0.4rem 1.5rem 0.4rem 0.6rem', 
+                fontSize: '0.8rem', 
+                width: 'auto', 
+                background: 'rgba(13, 22, 54, 0.4)', 
+                borderColor: 'var(--surface-border)', 
+                borderRadius: '0.6rem',
+                color: 'var(--text-color)',
+                cursor: 'pointer',
+                outline: 'none',
+                fontFamily: 'inherit',
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                MozAppearance: 'none'
+              }}
+            >
+              {themes.map((theme, i) => (
+                <option key={i} value={i} style={{ background: '#03050c', color: '#fff' }}>
+                  {theme.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Wallet controls */}
         {address ? (
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
             {balance !== null && (
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
                 <span style={{ 
-                  fontSize: '0.85rem', 
+                  fontSize: '0.8rem', 
                   fontWeight: 700, 
                   color: 'var(--primary-cyan)', 
                   background: 'rgba(6, 182, 212, 0.1)', 
                   border: '1px solid rgba(6, 182, 212, 0.2)',
-                  padding: '0.45rem 0.75rem',
+                  padding: '0.4rem 0.6rem',
                   borderRadius: '0.5rem',
                   fontFamily: 'Share Tech Mono, monospace',
                   boxShadow: '0 0 10px rgba(6, 182, 212, 0.1)'
@@ -214,22 +204,23 @@ export default function Header() {
                   disabled={funding}
                   className="btn btn-outline" 
                   style={{ 
-                    padding: '0.45rem 0.75rem', 
-                    fontSize: '0.75rem', 
+                    padding: '0.4rem 0.6rem', 
+                    fontSize: '0.7rem', 
                     color: 'var(--glowing-gold)',
                     borderColor: 'var(--gold-glow)',
                     background: 'rgba(245, 158, 11, 0.05)',
-                    height: 'auto'
+                    height: 'auto',
+                    borderRadius: '0.5rem'
                   }}
                 >
-                  {funding ? 'Funding...' : 'Claim 10k XLM 🚰'}
+                  {funding ? 'Funding...' : 'Claim 🚰'}
                 </button>
               </div>
             )}
-            <button className="btn btn-cyan" style={{ padding: '0.65rem 1.4rem', fontSize: '0.85rem', pointerEvents: 'none' }}>
+            <button className="btn btn-cyan" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', pointerEvents: 'none', borderRadius: '0.5rem' }}>
               <span>🔑</span> {`${address.substring(0, 5)}...${address.substring(address.length - 4)}`}
             </button>
-            <button className="btn btn-outline" onClick={disconnectWallet} style={{ padding: '0.65rem 1rem', fontSize: '0.85rem', borderColor: '#ef4444', color: '#ef4444', background: 'rgba(239, 68, 68, 0.05)' }}>
+            <button className="btn btn-outline" onClick={disconnectWallet} style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', borderColor: '#ef4444', color: '#ef4444', background: 'rgba(239, 68, 68, 0.05)', borderRadius: '0.5rem' }}>
               Disconnect
             </button>
           </div>
