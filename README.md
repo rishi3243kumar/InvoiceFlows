@@ -124,17 +124,26 @@ npm test
 ### Test Output
 ```text
 ▶ InvoiceFlow Midnight Compact ZK Circuit Tests
-  ✔ Test 1: should generate verifiable leaf commitment without leaking private values (8.46ms)
-  ✔ Test 2: should prove Merkle membership inside proveAccess circuit (0.71ms)
-  ✔ Test 3: should enforce unique deterministic nullifiers to prevent double-spending (0.54ms)
-  ✔ Test 4: should verify what an observer can and cannot learn from transaction data (1.10ms)
-✔ InvoiceFlow Midnight Compact ZK Circuit Tests (12.02ms)
+  ✔ Test 1: should generate verifiable leaf commitment without leaking private values (6.91ms)
+  ✔ Test 2: should prove Merkle membership inside proveAccess circuit (0.64ms)
+  ✔ Test 3: should enforce unique deterministic nullifiers to prevent double-spending (0.60ms)
+  ✔ Test 4: should verify what an observer can and cannot learn from transaction data (0.71ms)
+✔ InvoiceFlow Midnight Compact ZK Circuit Tests (9.83ms)
 ℹ tests 4
 ℹ suites 1
 ℹ pass 4
 ℹ fail 0
-ℹ duration_ms 101.87ms
+ℹ duration_ms 77.19ms
 ```
+
+---
+
+## 📸 Test Suite & CI/CD Verification Screenshots
+
+### 1. Test Suite Passing (4/4 Tests)
+![Test Output](docs/screenshots/tests_passing.png)
+
+> *To update with your custom screenshot, place your image in `docs/screenshots/tests_passing.png`.*
 
 ---
 
