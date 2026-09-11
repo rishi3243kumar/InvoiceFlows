@@ -348,7 +348,7 @@ body::before {
   box-shadow: 0 0 10px #fbbf24;
 }
 
-.stellar-label {
+.midnight-label {
   position: absolute;
   background: rgba(15, 23, 42, 0.95);
   border: 1px solid var(--surface-border);

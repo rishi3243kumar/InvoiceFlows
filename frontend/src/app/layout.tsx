@@ -5,8 +5,8 @@ import Starfield from '@/components/Starfield';
 import { ToastProvider } from '@/components/Toast';
 
 export const metadata: Metadata = {
-  title: 'InvoiceFlow | The Stellar Trust Layer for Invoice Financing',
-  description: 'Trust-Verified, Duplicate-Safe, Fast & Low-Fee Invoice Financing built on the Stellar blockchain.',
+  title: 'InvoiceFlow | Zero-Knowledge Confidential Invoice Trust Protocol on Midnight',
+  description: 'Confidential credentials, selective disclosure, and double-financing prevention powered by Midnight Network Compact ZK circuits.',
 };
 
 export default function RootLayout({

@@ -175,19 +175,19 @@ export default function Home() {
           {/* Inner Orbit (ZK Proof Lane) */}
           <div className="orbit orbit-inner">
             <div className="node" style={{ top: '15px', left: '75px' }}></div>
-            <div className="stellar-label" style={{ top: '10px', left: '95px' }}>PROVE_ACCESS CIRCUIT</div>
+            <div className="midnight-label" style={{ top: '10px', left: '95px' }}>PROVE_ACCESS CIRCUIT</div>
           </div>
 
           {/* Middle Orbit (Nullifier Registry) */}
           <div className="orbit orbit-middle">
             <div className="node node-gold" style={{ bottom: '25px', left: '50px' }}></div>
-            <div className="stellar-label" style={{ bottom: '20px', left: '70px', color: '#fbbf24' }}>NULLIFIER SPENT REGISTRY</div>
+            <div className="midnight-label" style={{ bottom: '20px', left: '70px', color: '#fbbf24' }}>NULLIFIER SPENT REGISTRY</div>
           </div>
 
           {/* Outer Orbit (Merkle Tree Root) */}
           <div className="orbit orbit-outer">
             <div className="node" style={{ top: '160px', right: '-6px', backgroundColor: '#c084fc', boxShadow: '0 0 10px #c084fc' }}></div>
-            <div className="stellar-label" style={{ top: '155px', right: '15px', color: '#c084fc' }}>MERKLE ROOT COMMITMENT</div>
+            <div className="midnight-label" style={{ top: '155px', right: '15px', color: '#c084fc' }}>MERKLE ROOT COMMITMENT</div>
           </div>
         </div>
       </section>
