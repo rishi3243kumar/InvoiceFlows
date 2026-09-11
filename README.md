@@ -3,11 +3,30 @@
 [![CI/CD Pipeline](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/ci.yml/badge.svg)](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Midnight Network](https://img.shields.io/badge/Midnight-Preprod%20Testnet-purple)](https://midnight.network)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-success)](https://invoice-flows.vercel.app/)
 
-> **Midnight Network Track:** Confidential Credentials & Private Allowlist Access (Selective Disclosure)  
+> **Live Web Application:** [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/)  
+> **1-Minute Demo Video Walkthrough:** [Watch Video Walkthrough](https://photos.app.goo.gl/LMNv3m27GbHqDueAA)  
+> **Midnight Track:** Confidential Credentials & Private Allowlist Access (Selective Disclosure)  
 > **Smart Contract Language:** Compact v0.18+ (ZK-SNARKs)  
 > **Wallet Integration:** Midnight Lace DApp Connector (`window.midnight.mnLace`) & 1AM Wallet  
-> **Architecture:** Poseidon Merkle Tree Commitments • Nullifiers • Proof $\to$ Balance $\to$ Submit Pipeline
+> **Architecture:** Poseidon Merkle Tree Commitments • Cryptographic Nullifiers • Proof $\to$ Balance $\to$ Submit Pipeline
+
+---
+
+## 📋 Level 3 - First Quarter Submission Checklist
+
+| Requirement | Status | Evidence / Location in Repo |
+|---|---|---|
+| **Public GitHub repository with complete README** | ✅ Complete | [rishi3243kumar/InvoiceFlows](https://github.com/rishi3243kumar/InvoiceFlows) |
+| **Fully functional dApp meaningfully using Midnight** | ✅ Complete | [Live Application](https://invoice-flows.vercel.app/) • [Compact Smart Contract](contracts/compact/invoice_flow.compact) |
+| **Live demo link** | ✅ Complete | [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/) |
+| **Demo video (1 minute) showing full functionality** | ✅ Complete | [1-Minute Video Walkthrough](https://photos.app.goo.gl/LMNv3m27GbHqDueAA) |
+| **Screenshot: test output (3+ tests passing)** | ✅ Complete | Included below (8/8 tests passing across contracts & frontend) |
+| **CI/CD pipeline (workflow file + passing runs)** | ✅ Complete | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) • [![CI/CD](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/ci.yml/badge.svg)](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/ci.yml) |
+| **README Privacy Model section (can / cannot learn)** | ✅ Complete | Included in section below (`☀️ What an Observer CAN / CANNOT Learn`) |
+| **Product proposal from approved idea list** | ✅ Complete | Selected: *Confidential Credentials & Private Allowlist Access* |
+| **Minimum 10 meaningful commits** | ✅ Complete | 129+ commits logged in git history |
 
 ---
 
@@ -47,7 +66,7 @@ Midnight’s core philosophy is **half light, half shadow**: exactly as much of 
 
 ## 🏛️ Compact Smart Contract Architecture
 
-Implemented in [`contracts/compact/invoice_flow.compact`](file:///contracts/compact/invoice_flow.compact).
+Implemented in [`contracts/compact/invoice_flow.compact`](contracts/compact/invoice_flow.compact).
 
 ```mermaid
 graph TD
@@ -154,11 +173,17 @@ npm test
 
 ## ⚙️ CI/CD Pipeline
 ![CI/CD Workflow](image-1.png)
-The automated CI/CD pipeline is configured in [`.github/workflows/ci.yml`](file:///.github/workflows/ci.yml). On every push and pull request:
+The automated CI/CD pipeline is configured in [`.github/workflows/ci.yml`](.github/workflows/ci.yml). On every push and pull request:
 1. Validates Midnight Compact smart contract schema and circuits.
 2. Executes the Compact contract zero-knowledge test suite.
 3. Executes the frontend zero-knowledge circuit test suite.
 4. Ensures zero regression across production frontend builds.
+
+---
+
+## 🎥 Demo Video Walkthrough
+
+- **1-Minute Full Functionality Demo Video:** [Watch Video on Google Photos](https://photos.app.goo.gl/LMNv3m27GbHqDueAA)
 
 ---
 
@@ -196,4 +221,5 @@ Open [http://localhost:3000](http://localhost:3000) to test:
 
 - **GitHub Profile**: [@rishi3243kumar](https://github.com/rishi3243kumar)
 - **Repository Link**: [InvoiceFlows](https://github.com/rishi3243kumar/InvoiceFlows)
+- **Live Deployment**: [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/)
 - **Contact Email**: [rishigshshshsh@gmail.com](mailto:rishigshshshsh@gmail.com)
