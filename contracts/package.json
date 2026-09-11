@@ -1,0 +1,32 @@
+{
+  "name": "invoiceflow-contracts",
+  "version": "1.0.0",
+  "description": "Midnight Network Compact Smart Contracts & Zero-Knowledge Circuits for InvoiceFlow",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "compile:compact": "echo 'Compiling Compact circuits in compact/invoice_flow.compact... (v0.18+ target: Midnight Preprod)'",
+    "test": "node --test tests/invoice_flow.test.mjs",
+    "deploy:preprod": "tsx src/deploy.ts --network preprod",
+    "deploy:testnet": "tsx src/deploy.ts --network testnet"
+  },
+  "keywords": [
+    "midnight-network",
+    "compact",
+    "zero-knowledge",
+    "zk-snarks",
+    "invoice-factoring",
+    "selective-disclosure",
+    "smart-contracts"
+  ],
+  "author": "rishi3243kumar <rishigshshshsh@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}
