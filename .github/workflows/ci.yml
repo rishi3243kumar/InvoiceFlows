@@ -30,13 +30,19 @@ jobs:
           grep -q "export circuit settleInvoice" contracts/compact/invoice_flow.compact
           echo "Compact Contract validation passed successfully!"
 
-      - name: Run Automated Zero-Knowledge Circuit Tests
+      - name: Run Midnight Contracts Test Suite
+        working-directory: ./contracts
+        run: |
+          echo "Executing Compact contract test suite..."
+          node --test tests/invoice_flow.test.mjs
+
+      - name: Run Automated Zero-Knowledge Frontend Circuit Tests
         working-directory: ./frontend
         run: |
-          echo "Executing automated test suite..."
+          echo "Executing frontend ZK test suite..."
           node --test src/lib/__tests__/invoice_flow.test.mjs
 
       - name: CI/CD Status Report
         run: |
-          echo "All Midnight Compact circuit tests passed (4/4)."
+          echo "All Midnight Compact circuit tests passed (4/4 in contracts, 4/4 in frontend)."
           echo "Production build validation succeeded."

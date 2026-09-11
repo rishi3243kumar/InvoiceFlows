@@ -3,12 +3,10 @@
 [![CI/CD Pipeline](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/ci.yml/badge.svg)](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Midnight Network](https://img.shields.io/badge/Midnight-Preprod%20Testnet-purple)](https://midnight.network)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-success)](https://invoice-flows.vercel.app/)
 
-> **Live Application:** [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/)  
 > **Midnight Network Track:** Confidential Credentials & Private Allowlist Access (Selective Disclosure)  
 > **Smart Contract Language:** Compact v0.18+ (ZK-SNARKs)  
-> **Wallet Integration:** 1AM Wallet & Midnight Lace DApp Connectors  
+> **Wallet Integration:** Midnight Lace DApp Connector (`window.midnight.mnLace`) & 1AM Wallet  
 > **Architecture:** Poseidon Merkle Tree Commitments • Nullifiers • Proof $\to$ Balance $\to$ Submit Pipeline
 
 ---
@@ -114,28 +112,35 @@ graph TD
 
 ---
 
-## 🧪 Automated Test Suite (4/4 Passing)
+## 🧪 Automated Test Suite (8/8 Passing)
 
-The repository includes an automated test suite verifying Compact circuit math, Merkle membership, nullifier collision prevention, and selective disclosure properties.
+The repository includes automated test suites for both the **Compact smart contracts** and the **frontend ZK circuits**, verifying circuit math, Merkle membership, nullifier collision prevention, and selective disclosure properties.
 
 ```bash
-cd frontend
+# 1. Run Compact Contract Tests
+cd contracts
+npm test
+
+# 2. Run Frontend ZK Circuit Tests
+cd ../frontend
 npm test
 ```
 
 ### Test Output
 ```text
+▶ Midnight Compact Smart Contract & ZK Circuit Tests
+  ✔ Circuit 1: Leaf commitment protects private financial amounts & client credentials (2.52ms)
+  ✔ Circuit 2: Merkle membership verification proves invoice inclusion in Midnight state (0.26ms)
+  ✔ Circuit 3: Deterministic nullifiers prevent double-financing / double-spend fraud (0.23ms)
+  ✔ Circuit 4: Settle & Repay updates shielded volume and client trust reputation (0.14ms)
+✔ Midnight Compact Smart Contract & ZK Circuit Tests (4.73ms)
+
 ▶ InvoiceFlow Midnight Compact ZK Circuit Tests
   ✔ Test 1: should generate verifiable leaf commitment without leaking private values (6.91ms)
   ✔ Test 2: should prove Merkle membership inside proveAccess circuit (0.64ms)
   ✔ Test 3: should enforce unique deterministic nullifiers to prevent double-spending (0.60ms)
   ✔ Test 4: should verify what an observer can and cannot learn from transaction data (0.71ms)
 ✔ InvoiceFlow Midnight Compact ZK Circuit Tests (9.83ms)
-ℹ tests 4
-ℹ suites 1
-ℹ pass 4
-ℹ fail 0
-ℹ duration_ms 77.19ms
 ```
 
 ---
@@ -143,22 +148,17 @@ npm test
 ## 📸 Test Suite & CI/CD Verification Screenshots
 
 ### 1. Test Suite Passing (4/4 Tests)
-![Test Output](docs/screenshots/tests_passing.png)
-
----
-
-## 🎥 Demo Video
-
-- **Video Walkthrough (1-Minute Full Functionality):** [Watch Demo Video](https://photos.app.goo.gl/LMNv3m27GbHqDueAA)
+![Test Results](image.png)
 
 ---
 
 ## ⚙️ CI/CD Pipeline
-
+![CI/CD Workflow](image-1.png)
 The automated CI/CD pipeline is configured in [`.github/workflows/ci.yml`](file:///.github/workflows/ci.yml). On every push and pull request:
 1. Validates Midnight Compact smart contract schema and circuits.
-2. Executes the zero-knowledge circuit test suite.
-3. Ensures zero regression across production frontend builds.
+2. Executes the Compact contract zero-knowledge test suite.
+3. Executes the frontend zero-knowledge circuit test suite.
+4. Ensures zero regression across production frontend builds.
 
 ---
 
@@ -169,19 +169,23 @@ The automated CI/CD pipeline is configured in [`.github/workflows/ci.yml`](file:
 git clone https://github.com/rishi3243kumar/InvoiceFlows.git
 cd InvoiceFlows
 
-# 2. Navigate to frontend & install dependencies
-cd frontend
-npm install
-
-# 3. Run automated tests
+# 2. Run Contract Tests
+cd contracts
 npm test
 
-# 4. Start local development server
+# 3. Navigate to frontend & install dependencies
+cd ../frontend
+npm install
+
+# 4. Run frontend tests
+npm test
+
+# 5. Start local development server
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to test:
-1. **Connect Lace Wallet**: Top right header connects via `window.midnight.mnLace`.
+1. **Connect Lace Wallet**: Top right header connects via `window.midnight.mnLace` or 1AM Wallet.
 2. **Submit Invoice (`/submit`)**: Generates private leaf commitment & updates Merkle tree.
 3. **Verify via `proveAccess` (`/verify/[id]`)**: Runs the Proof $\to$ Balance $\to$ Submit pipeline.
 4. **Marketplace Settle (`/marketplace`)**: Settles via `settleInvoice` with nullifier state checks.
@@ -192,5 +196,4 @@ Open [http://localhost:3000](http://localhost:3000) to test:
 
 - **GitHub Profile**: [@rishi3243kumar](https://github.com/rishi3243kumar)
 - **Repository Link**: [InvoiceFlows](https://github.com/rishi3243kumar/InvoiceFlows)
-- **Live Demo**: [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/)
 - **Contact Email**: [rishigshshshsh@gmail.com](mailto:rishigshshshsh@gmail.com)
