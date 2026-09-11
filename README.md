@@ -4,8 +4,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Midnight Network](https://img.shields.io/badge/Midnight-Preprod%20Testnet-purple)](https://midnight.network)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-success)](https://invoice-flows.vercel.app/)
+[![X Profile](https://img.shields.io/badge/X-@InvoiceFlows-black?logo=x&logoColor=white)](https://x.com/InvoiceFlows)
 
 > **Live Web Application:** [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/)  
+> **Product X (Twitter):** [https://x.com/InvoiceFlows](https://x.com/InvoiceFlows)  
 > **1-Minute Demo Video Walkthrough:** [Watch Video Walkthrough](https://photos.app.goo.gl/LMNv3m27GbHqDueAA)  
 > **Midnight Track:** Confidential Credentials & Private Allowlist Access (Selective Disclosure)  
 > **Smart Contract Language:** Compact v0.18+ (ZK-SNARKs)  
@@ -217,8 +219,9 @@ Open [http://localhost:3000](http://localhost:3000) to test:
 
 ---
 
-## 👤 Author & Repository Details
+## 👤 Author & Product Links
 
+- **Product X (Twitter)**: [https://x.com/InvoiceFlows](https://x.com/InvoiceFlows)
 - **GitHub Profile**: [@rishi3243kumar](https://github.com/rishi3243kumar)
 - **Repository Link**: [InvoiceFlows](https://github.com/rishi3243kumar/InvoiceFlows)
 - **Live Deployment**: [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/)
