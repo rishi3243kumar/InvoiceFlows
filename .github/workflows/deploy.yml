@@ -61,7 +61,7 @@ jobs:
           npx tsx src/launcher/deploy-gatecheck.ts
         env:
           NODE_OPTIONS: "--max-old-space-size=8192 --expose-gc"
-          WALLET_SEED: ${{ secrets.WALLET_SEED || 'please enjoy bread milk lady devote female ancient hollow split quit east rich cable job grass bounce enter rule tip grocery pear visa chimney' }}
+          WALLET_SEED: ${{ secrets.WALLET_SEED || 'a669546dc647c8799538446cfa46bf22db943fde032f1a696ef4f1466d443d29' }}
 
       - name: Upload Deployment Info
         if: always()
