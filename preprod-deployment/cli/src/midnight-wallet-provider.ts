@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+import crypto from 'node:crypto';
 import { WebSocket } from 'ws';
 import {
   type CoinPublicKey,
@@ -43,6 +44,16 @@ type UnshieldedKeystore = {
   getPublicKey(): unknown;
   signData(payload: Uint8Array): string;
 };
+
+export function parseOrDeriveSeed(input: string): string {
+  const trimmed = input.trim();
+  const hex = trimmed.startsWith('0x') ? trimmed.slice(2) : trimmed;
+  if (/^[0-9a-fA-F]{64}$/.test(hex)) {
+    return hex;
+  }
+  const derived = crypto.pbkdf2Sync(trimmed.normalize('NFKD'), 'mnemonic', 2048, 32, 'sha512');
+  return derived.toString('hex');
+}
 
 /**
  * Provider class that implements wallet functionality for the Midnight network.
@@ -138,7 +149,8 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
       },
     };
 
-    const seeds = seed ? WalletSeeds.fromMasterSeed(seed) : WalletSeeds.generateRandom();
+    const masterSeed = seed ? parseOrDeriveSeed(seed) : undefined;
+    const seeds = masterSeed ? WalletSeeds.fromMasterSeed(masterSeed) : WalletSeeds.generateRandom();
     const keystore = createKeystore(seeds.unshielded, env.walletNetworkId as any);
 
     const unshieldedWallet = WalletFactory.createUnshieldedWallet(walletConfig as any, keystore);
