@@ -4,12 +4,11 @@ import { WitnessContext } from "@midnight-ntwrk/midnight-js-protocol/compact-run
 export type InvoiceFlowPrivateState = {
   readonly secretKey: Uint8Array;
   readonly invoiceSecret?: Uint8Array;
-  readonly amount?: bigint;
-  readonly salt?: Uint8Array;
 };
 
 export const createInvoiceFlowPrivateState = (secretKey: Uint8Array) => ({
   secretKey,
+  invoiceSecret: secretKey,
 });
 
 export type BBoardPrivateState = InvoiceFlowPrivateState;
@@ -23,47 +22,28 @@ export const witnesses = {
     Uint8Array,
   ] => [privateState, privateState.secretKey ?? new Uint8Array(32)],
 
-  getPrivateInvoiceSecret: ({
+  invoiceSecret: ({
     privateState,
   }: WitnessContext<Ledger, InvoiceFlowPrivateState>): [
     InvoiceFlowPrivateState,
     Uint8Array,
-  ] => [privateState, privateState.invoiceSecret ?? new Uint8Array(32)],
-
-  getInvoiceAmount: ({
-    privateState,
-  }: WitnessContext<Ledger, InvoiceFlowPrivateState>): [
-    InvoiceFlowPrivateState,
-    bigint,
-  ] => [privateState, privateState.amount ?? 0n],
-
-  getInvoiceSalt: ({
-    privateState,
-  }: WitnessContext<Ledger, InvoiceFlowPrivateState>): [
-    InvoiceFlowPrivateState,
-    Uint8Array,
-  ] => [privateState, privateState.salt ?? new Uint8Array(32)],
-
-  getMerklePath: ({
-    privateState,
-  }: WitnessContext<Ledger, InvoiceFlowPrivateState>): [
-    InvoiceFlowPrivateState,
-    any,
-  ] => [
-    privateState,
-    {
-      leafIndex: 0,
-      pathElements: Array.from({ length: 16 }, () => new Uint8Array(32)),
-      pathIndices: Array.from({ length: 16 }, () => false),
-    },
-  ],
+  ] => [privateState, privateState.invoiceSecret ?? privateState.secretKey ?? new Uint8Array(32)],
 
   merklePath: ({
     privateState,
   }: WitnessContext<Ledger, InvoiceFlowPrivateState>): [
     InvoiceFlowPrivateState,
     [Uint8Array, Uint8Array, Uint8Array, Uint8Array, Uint8Array],
-  ] => [privateState, [new Uint8Array(32), new Uint8Array(32), new Uint8Array(32), new Uint8Array(32), new Uint8Array(32)]],
+  ] => [
+    privateState,
+    [
+      new Uint8Array(32),
+      new Uint8Array(32),
+      new Uint8Array(32),
+      new Uint8Array(32),
+      new Uint8Array(32),
+    ],
+  ],
 
   pathDirections: ({
     privateState,
@@ -72,4 +52,3 @@ export const witnesses = {
     [boolean, boolean, boolean, boolean, boolean],
   ] => [privateState, [false, false, false, false, false]],
 };
-
