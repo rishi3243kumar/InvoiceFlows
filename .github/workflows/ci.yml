@@ -24,10 +24,10 @@ jobs:
         run: |
           echo "Validating Midnight Compact contract syntax in contracts/compact/invoice_flow.compact..."
           test -f contracts/compact/invoice_flow.compact
-          grep -q "module InvoiceFlow" contracts/compact/invoice_flow.compact
-          grep -q "export circuit proveAccess" contracts/compact/invoice_flow.compact
-          grep -q "export circuit tokenizeInvoice" contracts/compact/invoice_flow.compact
-          grep -q "export circuit settleInvoice" contracts/compact/invoice_flow.compact
+          grep -q "pragma language_version" contracts/compact/invoice_flow.compact
+          grep -q "export ledger invoiceRoot" contracts/compact/invoice_flow.compact
+          grep -q "export circuit registerInvoiceRoot" contracts/compact/invoice_flow.compact
+          grep -q "export circuit verifyAndSettleInvoice" contracts/compact/invoice_flow.compact
           echo "Compact Contract validation passed successfully!"
 
       - name: Run Midnight Contracts Test Suite
