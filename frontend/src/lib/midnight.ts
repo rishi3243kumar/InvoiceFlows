@@ -10,7 +10,7 @@ export const MIDNIGHT_CONFIG = {
   indexerUri: process.env.NEXT_PUBLIC_MIDNIGHT_INDEXER_URI || 'https://indexer.preprod.midnight.network/api/v1/graphql',
   rpcUri: process.env.NEXT_PUBLIC_MIDNIGHT_RPC_URI || 'https://rpc.preprod.midnight.network',
   proofServerUri: process.env.NEXT_PUBLIC_MIDNIGHT_PROOF_SERVER_URI || 'https://proof-server.preprod.midnight.network',
-  contractAddress: process.env.NEXT_PUBLIC_MIDNIGHT_CONTRACT_ADDRESS || 'mn_contract_preprod1z8x9gq3kl7n2w0pvfm89dcj4e6tr25ha7k',
+  contractAddress: process.env.NEXT_PUBLIC_MIDNIGHT_CONTRACT_ADDRESS || '00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406',
 };
 
 export interface MidnightWalletState {

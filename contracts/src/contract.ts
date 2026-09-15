@@ -45,5 +45,5 @@ export const PREPROD_CONFIG: ContractDeploymentConfig = {
   indexerUrl: 'https://indexer.preprod.midnight.network/api/v1/graphql',
   proofServerUrl: 'https://proof.preprod.midnight.network',
   nodeUrl: 'https://rpc.preprod.midnight.network',
-  contractAddress: 'mn_contract_preprod1z8x9gq3kl7n2w0pvfm89dcj4e6tr25ha7k'
+  contractAddress: '00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406'
 };

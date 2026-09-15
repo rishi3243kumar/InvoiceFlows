@@ -125,11 +125,10 @@ graph TD
 
 | Parameter | Value | Verification Link |
 |---|---|---|
-| **Network** | Midnight Preprod Testnet | [Midnight Preprod Explorer](https://explorer.preprod.midnight.network) |
-| **Compact Contract Address** | `mn_contract_preprod1z8x9gq3kl7n2w0pvfm89dcj4e6tr25ha7k` | [Inspect Contract](https://explorer.preprod.midnight.network/contract/mn_contract_preprod1z8x9gq3kl7n2w0pvfm89dcj4e6tr25ha7k) |
-| **`proveAccess` Verification Tx** | `0x4a8f9c1d2e3b5a7e6f8c9d0b1a2e3f4c5d6e7a8b9c0d1e2f3a4b5c6d7e8f9a0b` | [View Proof Tx](https://explorer.preprod.midnight.network/tx/0x4a8f9c1d2e3b5a7e6f8c9d0b1a2e3f4c5d6e7a8b9c0d1e2f3a4b5c6d7e8f9a0b) |
-| **`tokenizeInvoice` Genesis Tx** | `0x7b2c9a1d3e5f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b` | [View Tokenize Tx](https://explorer.preprod.midnight.network/tx/0x7b2c9a1d3e5f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b) |
-| **`settleInvoice` Settlement Tx** | `0x9e1f3a5b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f` | [View Settlement Tx](https://explorer.preprod.midnight.network/tx/0x9e1f3a5b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f) |
+| **Network** | Midnight Preprod Network | [Midnight Preprod Explorer](https://preprod.midnight.network) |
+| **Compact Contract Address** | `00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406` | [Inspect Contract on Explorer](https://preprod.midnight.network/contract/00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406) |
+| **Preprod Deployment Pipeline** | Fast Batch DUST Sync (5000 events/batch, WASM memory patch) | [GitHub Actions CI Deploy Run](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/deploy.yml) |
+| **Deployment Status** | ✅ Live & Verified On-Chain | [Download Artifacts](https://github.com/rishi3243kumar/InvoiceFlows/actions/runs/34942551452) |
 
 ---
 
