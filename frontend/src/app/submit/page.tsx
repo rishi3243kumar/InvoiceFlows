@@ -161,7 +161,7 @@ export default function SubmitInvoice() {
           <div style={{ background: 'rgba(0, 0, 0, 0.3)', padding: '0.85rem', borderRadius: '0.5rem', fontSize: '0.8rem', fontFamily: 'Share Tech Mono, monospace', wordBreak: 'break-all', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
             <div><strong>Invoice ID:</strong> <span style={{ color: 'var(--primary-cyan)' }}>#{invoiceDetails.invoiceId}</span></div>
             <div><strong>Commitment:</strong> {invoiceDetails.commitment.substring(0, 24)}...</div>
-            <div><strong>Preprod Tx:</strong> <a href={`https://explorer.preprod.midnight.network/tx/${successTx}`} target="_blank" rel="noreferrer" style={{ color: 'var(--glowing-gold)', textDecoration: 'underline' }}>{successTx.substring(0, 24)}...</a></div>
+            <div><strong>Preprod Tx:</strong> <a href={`https://preprod.midnightexplorer.com/tx/${successTx}`} target="_blank" rel="noreferrer" style={{ color: 'var(--glowing-gold)', textDecoration: 'underline' }}>{successTx.substring(0, 24)}...</a></div>
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>

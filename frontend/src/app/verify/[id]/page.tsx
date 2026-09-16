@@ -205,7 +205,7 @@ export default function VerifyInvoice() {
           <div style={{ padding: '1.25rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10b981', color: '#10b981', borderRadius: '0.5rem', marginBottom: '1.5rem', textAlign: 'left' }}>
             <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.5rem' }}>✅ proveAccess Circuit Executed & Verified!</div>
             <div style={{ fontSize: '0.8rem', color: '#e2e8f0', fontFamily: 'Share Tech Mono, monospace', wordBreak: 'break-all', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <div><strong>Preprod Tx:</strong> <a href={`https://explorer.preprod.midnight.network/tx/${txHash}`} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-cyan)', textDecoration: 'underline' }}>{txHash}</a></div>
+              <div><strong>Preprod Tx:</strong> <a href={`https://preprod.midnightexplorer.com/tx/${txHash}`} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-cyan)', textDecoration: 'underline' }}>{txHash}</a></div>
               <div><strong>Generated Nullifier:</strong> {nullifier?.substring(0, 28)}...</div>
             </div>
           </div>

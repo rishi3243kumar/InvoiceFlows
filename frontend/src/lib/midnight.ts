@@ -12,7 +12,7 @@ export const MIDNIGHT_CONFIG = {
   rpcUri: process.env.NEXT_PUBLIC_MIDNIGHT_RPC_URI || 'https://rpc.preprod.midnight.network',
   proofServerUri: process.env.NEXT_PUBLIC_MIDNIGHT_PROOF_SERVER_URI || 'https://proof.preprod.midnight.network',
   contractAddress: process.env.NEXT_PUBLIC_MIDNIGHT_CONTRACT_ADDRESS || '00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406',
-  explorerUrl: 'https://preprod.midnight.network/contract/00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406',
+  explorerUrl: 'https://preprod.midnightexplorer.com/contracts/00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406',
   deploymentTx: '0d5e1c24392d257b9615c9d30d6e929e0909d1a8baf9186016cf71317a7b454a',
   deploymentBlock: 2557987,
 };

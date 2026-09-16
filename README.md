@@ -125,8 +125,8 @@ graph TD
 
 | Parameter | Value | Verification Link |
 |---|---|---|
-| **Network** | Midnight Preprod Network | [Midnight Preprod Explorer](https://preprod.midnight.network) |
-| **Compact Contract Address** | `00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406` | [Inspect Contract on Explorer](https://preprod.midnight.network/contract/00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406) |
+| **Network** | Midnight Preprod Network | [Midnight Preprod Explorer](https://preprod.midnightexplorer.com) |
+| **Compact Contract Address** | `00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406` | [Inspect Contract on Explorer](https://preprod.midnightexplorer.com/contracts/00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406) |
 | **Preprod Deployment Pipeline** | Fast Batch DUST Sync (5000 events/batch, WASM memory patch) | [GitHub Actions CI Deploy Run](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/deploy.yml) |
 | **Deployment Status** | ✅ Live & Verified On-Chain | [Download Artifacts](https://github.com/rishi3243kumar/InvoiceFlows/actions/runs/34942551452) |
 
