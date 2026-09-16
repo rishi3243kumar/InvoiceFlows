@@ -6,6 +6,8 @@ import { useToast } from '@/components/Toast';
 import { 
   getConnectedWallet, 
   MIDNIGHT_CONFIG,
+  executeSettlePipeline,
+  executeFundPipeline,
   sha256 
 } from '@/lib/midnight';
 
@@ -109,25 +111,29 @@ export default function Marketplace() {
       const current = targetInv || tokenData;
       if (!current) throw new Error('No invoice selected.');
 
-      showToast(`Initiating Midnight ${action === 'buy' ? 'Funding' : 'Settlement'} ZK pipeline...`, 'info');
-      
-      // Step 1: Proof Generation
-      await new Promise(r => setTimeout(r, 1200));
-      
-      // Step 2: Lace DApp Connector Balancing
-      await new Promise(r => setTimeout(r, 1000));
-      
-      // Step 3: Submission to Midnight Preprod RPC
-      await new Promise(r => setTimeout(r, 1400));
-
-      const txHash = `0x${await sha256(`MIDNIGHT_${action.toUpperCase()}_${current.id}_${Date.now()}`)}`;
-      
       if (action === 'settle') {
-        const msg = `settleInvoice circuit finalized! Nullifier marked as spent on Midnight Preprod. (Tx: ${txHash.substring(0, 16)}...)`;
+        const result = await executeSettlePipeline({
+          invoiceId: current.id,
+          nullifier: current.nullifier || '0x3f7a1c89e2b04758d194c502b48a7391e6c49271a05284b9e1738c649281a95e',
+          amount: current.amount,
+          onStepChange: (step, detail) => {
+            showToast(detail, 'info');
+          }
+        });
+
+        const msg = `settleInvoice circuit finalized in block #${result.blockHeight}! Nullifier marked as spent on Midnight Preprod. (Tx: ${result.txHash?.substring(0, 16)}...)`;
         setSuccess(msg);
         showToast(msg, 'success');
       } else {
-        const msg = `Invoice funded with shielded tDUST! Token ownership transferred. (Tx: ${txHash.substring(0, 16)}...)`;
+        const result = await executeFundPipeline({
+          invoiceId: current.id,
+          price: current.price,
+          onStepChange: (step, detail) => {
+            showToast(detail, 'info');
+          }
+        });
+
+        const msg = `Invoice funded with shielded tDUST in block #${result.blockHeight}! Token ownership transferred. (Tx: ${result.txHash?.substring(0, 16)}...)`;
         setSuccess(msg);
         showToast(msg, 'success');
       }
