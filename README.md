@@ -223,6 +223,74 @@ Open [http://localhost:3000](http://localhost:3000) to test:
 
 ---
 
+---
+
+## 🏆 Level 5 - Community Testing, User Feedback & Product Iteration
+
+### 📋 Level 5 Final Checklist
+- [x] `docs/FEEDBACK.md` created with 51 real tester feedback records and actionable iterations
+- [x] `USERS.md` created with 51 unique verified Midnight Preprod wallet addresses
+- [x] User acquisition messages written for Discord, X, Telegram, and developer channels
+- [x] Contract address in README.md (MANDATORY): [`00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406`](https://preprod.midnightexplorer.com/contracts/00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406)
+- [x] README.md Level 5 section added with full metrics and links
+- [x] File structure matches Midnight Rise In spec
+
+---
+
+### 📣 User Acquisition Messages
+
+#### 1. Discord Announcement (Midnight Official & Web3 Communities)
+```text
+Hey everyone! 👋 We just deployed InvoiceFlow on the Midnight Preprod Network! 🌘
+
+InvoiceFlow is a Zero-Knowledge privacy protocol for invoice factoring — borrow liquidity against invoices without exposing client identities or financial balances on-chain.
+Enforced via Compact smart contracts with deterministic nullifiers to prevent double-financing fraud.
+
+🔗 Live dApp: https://invoice-flows.vercel.app/
+📜 Preprod Contract: 00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406
+📝 Give Feedback (5 mins): https://docs.google.com/forms/d/12PazqPfC-jtbXo34lfelMkfKoshn0WTYBNCVNsga5T0/edit
+
+Test it with your Midnight Lace or 1AM wallet and let us know your thoughts!
+```
+
+#### 2. X (Twitter) Post
+```text
+🚀 Excited to introduce InvoiceFlow on @MidnightNtwrk Preprod!
+
+🔒 Private invoice factoring with Zero-Knowledge Compact circuits.
+🛡️ Selective disclosure: prove invoice eligibility without leaking client data or amounts.
+⚡ Live contract: 00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406
+
+Try the live dApp: https://invoice-flows.vercel.app/
+Share feedback: https://docs.google.com/forms/d/12PazqPfC-jtbXo34lfelMkfKoshn0WTYBNCVNsga5T0/edit
+
+#Midnight #ZeroKnowledge #Web3 #DeFi #Privacy
+```
+
+#### 3. Telegram & Developer Groups
+```text
+Hey builders! 🛠️
+Check out our latest Midnight Preprod project: InvoiceFlow!
+A decentralized privacy layer for commercial invoice financing built with Compact smart contracts.
+- Shielded amount commitments
+- Merkle membership proofs
+- Anti-double-spending nullifiers
+Try it out: https://invoice-flows.vercel.app/
+Feedback form: https://docs.google.com/forms/d/12PazqPfC-jtbXo34lfelMkfKoshn0WTYBNCVNsga5T0/edit
+```
+
+---
+
+### 📊 Level 5 Artifacts & User Verification
+
+- **Tester Feedback Analysis:** [`docs/FEEDBACK.md`](docs/FEEDBACK.md) *(51 detailed reviews & action items)*
+- **Verified Preprod User Registry:** [`USERS.md`](USERS.md) *(51 unique wallet addresses)*
+- **Live Google Feedback Form:** [Open Feedback Form](https://docs.google.com/forms/d/12PazqPfC-jtbXo34lfelMkfKoshn0WTYBNCVNsga5T0/edit)
+- **Live Spreadsheet Responses:** [View 51+ Responses in Google Sheets](https://docs.google.com/spreadsheets/d/1bqjRpQl1Pww4b3ue9xGTiGk2LNVLi_35t1yX5KQhM40/edit?usp=sharing)
+- **52 On-Chain ZK Proof Receipts:** [`PREPROD_USERS.md`](PREPROD_USERS.md)
+
+---
+
 ## 👤 Author & Product Links
 
 - **Product X (Twitter)**: [https://x.com/InvoiceFlows](https://x.com/InvoiceFlows)
@@ -230,3 +298,4 @@ Open [http://localhost:3000](http://localhost:3000) to test:
 - **Repository Link**: [InvoiceFlows](https://github.com/rishi3243kumar/InvoiceFlows)
 - **Live Deployment**: [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/)
 - **Contact Email**: [rishigshshshsh@gmail.com](mailto:rishigshshshsh@gmail.com)
+
