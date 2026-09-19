@@ -9,6 +9,8 @@
 > **Live Web Application:** [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/)  
 > **Product X (Twitter):** [https://x.com/InvoiceFlows](https://x.com/InvoiceFlows)  
 > **1-Minute Demo Video Walkthrough:** [Watch Video Walkthrough](https://photos.app.goo.gl/LMNv3m27GbHqDueAA)  
+> **User Feedback Form:** [Google Form](https://docs.google.com/forms/d/12PazqPfC-jtbXo34lfelMkfKoshn0WTYBNCVNsga5T0/edit)  
+> **Feedback Responses Sheet (51+ Users):** [Google Spreadsheet Responses](https://docs.google.com/spreadsheets/d/1bqjRpQl1Pww4b3ue9xGTiGk2LNVLi_35t1yX5KQhM40/edit?usp=sharing)  
 > **Midnight Track:** Confidential Credentials & Private Allowlist Access (Selective Disclosure)  
 > **Smart Contract Language:** Compact v0.18+ (ZK-SNARKs)  
 > **Wallet Integration:** Midnight Lace DApp Connector (`window.midnight.mnLace`) & 1AM Wallet  
@@ -129,6 +131,8 @@ graph TD
 | **Compact Contract Address** | `00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406` | [Inspect Contract on Explorer](https://preprod.midnightexplorer.com/contracts/00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406) |
 | **Preprod Deployment Pipeline** | Fast Batch DUST Sync (5000 events/batch, WASM memory patch) | [GitHub Actions CI Deploy Run](https://github.com/rishi3243kumar/InvoiceFlows/actions/workflows/deploy.yml) |
 | **52 On-Chain ZK User Receipts** | 52 Live Verified Compact Circuit Transactions | [View PREPROD_USERS.md](PREPROD_USERS.md) |
+| **User Feedback Form** | Public Google Feedback Form | [Open Form](https://docs.google.com/forms/d/12PazqPfC-jtbXo34lfelMkfKoshn0WTYBNCVNsga5T0/edit) |
+| **User Feedback Responses Sheet** | 51+ Verified User Responses & Ratings | [View Google Spreadsheet](https://docs.google.com/spreadsheets/d/1bqjRpQl1Pww4b3ue9xGTiGk2LNVLi_35t1yX5KQhM40/edit?usp=sharing) |
 | **Deployment Status** | ✅ Live & Verified On-Chain | [Download Artifacts](https://github.com/rishi3243kumar/InvoiceFlows/actions/runs/34942551452) |
 
 ---
