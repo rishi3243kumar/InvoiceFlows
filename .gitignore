@@ -16,3 +16,8 @@ target/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Scratch and temporary scripts
+scratch/
+*.log
+
