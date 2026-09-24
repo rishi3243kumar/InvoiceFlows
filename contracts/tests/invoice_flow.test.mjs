@@ -2,106 +2,156 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import * as crypto from 'node:crypto';
 
-describe('Midnight Compact Smart Contract & ZK Circuit Tests', () => {
-  function computeLeafCommitment(secret, amount, clientPubkey, salt) {
+describe('Midnight Compact Smart Contract & ZK Circuit Tests (invoice_flow.compact)', () => {
+  
+  function leafOf(secret) {
     const hash = crypto.createHash('sha256');
-    hash.update(Buffer.from(secret.replace('0x', ''), 'hex'));
-    const amountBuf = Buffer.alloc(8);
-    amountBuf.writeBigUInt64BE(BigInt(amount));
-    hash.update(amountBuf);
-    hash.update(Buffer.from(clientPubkey.replace('0x', ''), 'hex'));
-    hash.update(Buffer.from(salt.replace('0x', ''), 'hex'));
+    const padTag = Buffer.alloc(32);
+    padTag.write('invoiceflow:leaf', 'utf8');
+    hash.update(padTag);
+    const secretBuf = typeof secret === 'string'
+      ? (secret.startsWith('0x') ? Buffer.from(secret.slice(2), 'hex') : Buffer.from(secret, 'utf8'))
+      : secret;
+    hash.update(secretBuf);
     return '0x' + hash.digest('hex');
   }
 
-  function computeNullifier(secret, salt) {
+  function nullifierOf(secret) {
     const hash = crypto.createHash('sha256');
-    hash.update(Buffer.from(secret.replace('0x', ''), 'hex'));
-    hash.update(Buffer.from(salt.replace('0x', ''), 'hex'));
-    hash.update(Buffer.from('INVOICEFLOW_NULLIFIER', 'utf8'));
+    const padTag = Buffer.alloc(32);
+    padTag.write('invoiceflow:null', 'utf8');
+    hash.update(padTag);
+    const secretBuf = typeof secret === 'string'
+      ? (secret.startsWith('0x') ? Buffer.from(secret.slice(2), 'hex') : Buffer.from(secret, 'utf8'))
+      : secret;
+    hash.update(secretBuf);
     return '0x' + hash.digest('hex');
   }
 
-  function verifyMerklePath(leaf, root, pathElements, pathIndices) {
+  function merkleRootFrom(leaf, path, directions) {
     let current = leaf;
-    for (let i = 0; i < pathElements.length; i++) {
-      const h = crypto.createHash('sha256');
-      if (pathIndices[i]) {
-        h.update(pathElements[i]);
-        h.update(current);
+    for (let i = 0; i < 5; i++) {
+      const hash = crypto.createHash('sha256');
+      const pathBuf = Buffer.from(path[i].replace('0x', ''), 'hex');
+      const currentBuf = Buffer.from(current.replace('0x', ''), 'hex');
+
+      if (directions[i]) {
+        hash.update(pathBuf);
+        hash.update(currentBuf);
       } else {
-        h.update(current);
-        h.update(pathElements[i]);
+        hash.update(currentBuf);
+        hash.update(pathBuf);
       }
-      current = '0x' + h.digest('hex');
+      current = '0x' + hash.digest('hex');
     }
-    return current.toLowerCase() === root.toLowerCase();
+    return current;
   }
 
-  it('Circuit 1: Leaf commitment protects private financial amounts & client credentials', () => {
+  it('Circuit leafOf: Computes deterministic leaf commitment from private secret', () => {
     const secret = '0x1111111111111111111111111111111111111111111111111111111111111111';
-    const amount = 50000000000n; // 50,000 tDUST
-    const clientPubkey = '0x2222222222222222222222222222222222222222222222222222222222222222';
-    const salt = '0x3333333333333333333333333333333333333333333333333333333333333333';
+    const leaf1 = leafOf(secret);
+    const leaf2 = leafOf(secret);
+    assert.equal(leaf1, leaf2, 'Identical secrets must yield identical leaf commitments');
 
-    const leaf1 = computeLeafCommitment(secret, amount, clientPubkey, salt);
-    const leaf2 = computeLeafCommitment(secret, amount, clientPubkey, salt);
-    assert.equal(leaf1, leaf2, 'Identical witnesses must yield identical leaf commitments');
-
-    const differentAmountLeaf = computeLeafCommitment(secret, 99999999999n, clientPubkey, salt);
-    assert.notEqual(leaf1, differentAmountLeaf, 'Different amounts must generate distinct commitments');
+    const differentSecret = '0x2222222222222222222222222222222222222222222222222222222222222222';
+    const differentLeaf = leafOf(differentSecret);
+    assert.notEqual(leaf1, differentLeaf, 'Different secrets must produce distinct leaf commitments');
   });
 
-  it('Circuit 2: Merkle membership verification proves invoice inclusion in Midnight state', () => {
-    const leaf = '0xaaaa111122223333444455556666777788889999aaaabbbbccccddddeeeeffff';
-    const pathElements = [
-      '0x1000000000000000000000000000000000000000000000000000000000000001',
-      '0x2000000000000000000000000000000000000000000000000000000000000002'
-    ];
-    const pathIndices = [false, true];
-
-    let computed = leaf;
-    for (let i = 0; i < pathElements.length; i++) {
-      const h = crypto.createHash('sha256');
-      if (pathIndices[i]) {
-        h.update(pathElements[i]);
-        h.update(computed);
-      } else {
-        h.update(computed);
-        h.update(pathElements[i]);
-      }
-      computed = '0x' + h.digest('hex');
-    }
-
-    const isValid = verifyMerklePath(leaf, computed, pathElements, pathIndices);
-    assert.equal(isValid, true, 'Valid Merkle witness path must verify against on-chain root');
-  });
-
-  it('Circuit 3: Deterministic nullifiers prevent double-financing / double-spend fraud', () => {
+  it('Circuit nullifierOf: Computes deterministic nullifier preventing double-spending', () => {
     const secret = '0x5555555555555555555555555555555555555555555555555555555555555555';
-    const salt = '0x6666666666666666666666666666666666666666666666666666666666666666';
-
-    const nullifier1 = computeNullifier(secret, salt);
-    const nullifier2 = computeNullifier(secret, salt);
+    const nullifier1 = nullifierOf(secret);
+    const nullifier2 = nullifierOf(secret);
     assert.equal(nullifier1, nullifier2, 'Deterministic nullifier calculation must match exactly');
-
-    const spentMap = new Map();
-    spentMap.set(nullifier1, true);
-
-    const isDoubleSpend = spentMap.has(nullifier2);
-    assert.equal(isDoubleSpend, true, 'Attempted replay or second settlement must be blocked by nullifier registry');
   });
 
-  it('Circuit 4: Settle & Repay updates shielded volume and client trust reputation', () => {
-    const clientReputations = new Map();
-    const clientHash = '0x7777777777777777777777777777777777777777777777777777777777777777';
-    clientReputations.set(clientHash, 95);
+  it('Circuit merkleRootFrom: Computes 5-depth Merkle root from Vector<5> path and directions', () => {
+    const secret = '0x3333333333333333333333333333333333333333333333333333333333333333';
+    const leaf = leafOf(secret);
+    const path = [
+      '0x1000000000000000000000000000000000000000000000000000000000000001',
+      '0x2000000000000000000000000000000000000000000000000000000000000002',
+      '0x3000000000000000000000000000000000000000000000000000000000000003',
+      '0x4000000000000000000000000000000000000000000000000000000000000004',
+      '0x5000000000000000000000000000000000000000000000000000000000000005'
+    ];
+    const directions = [false, true, false, false, true];
 
-    let currentRep = clientReputations.get(clientHash);
-    if (currentRep < 100) {
-      clientReputations.set(clientHash, currentRep + 1);
-    }
+    const root = merkleRootFrom(leaf, path, directions);
+    assert.ok(root.startsWith('0x'), 'Root must be a valid 0x hex string');
+    assert.equal(root.length, 66, '32-byte root hex string must be 66 characters long');
+  });
 
-    assert.equal(clientReputations.get(clientHash), 96, 'Client reputation must increment after successful shielded settlement');
+  it('Circuit registerInvoiceRoot: Updates on-chain invoiceRoot and increments invoiceCount', () => {
+    const ledgerState = {
+      invoiceRoot: '0x0000000000000000000000000000000000000000000000000000000000000000',
+      issuer: '0xissuerpk123456',
+      invoiceCount: 0n,
+      settledCount: 0n,
+      nullifiers: new Set()
+    };
+
+    const callerPK = '0xissuerpk123456';
+    const newRoot = '0xabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd';
+
+    // Simulate Compact circuit assert & mutation
+    assert.equal(callerPK, ledgerState.issuer, 'Only the issuer may update invoice root');
+    ledgerState.invoiceRoot = newRoot;
+    ledgerState.invoiceCount += 1n;
+
+    assert.equal(ledgerState.invoiceRoot, newRoot);
+    assert.equal(ledgerState.invoiceCount, 1n);
+  });
+
+  it('Circuit verifyAndSettleInvoice: Proves Merkle membership & enforces single-settlement nullifier', () => {
+    const secret = '0x7777777777777777777777777777777777777777777777777777777777777777';
+    const leaf = leafOf(secret);
+    const path = [
+      '0x0101010101010101010101010101010101010101010101010101010101010101',
+      '0x0202020202020202020202020202020202020202020202020202020202020202',
+      '0x0303030303030303030303030303030303030303030303030303030303030303',
+      '0x0404040404040404040404040404040404040404040404040404040404040404',
+      '0x0505050505050505050505050505050505050505050505050505050505050505'
+    ];
+    const directions = [true, false, true, false, false];
+    const root = merkleRootFrom(leaf, path, directions);
+
+    const ledgerState = {
+      invoiceRoot: root,
+      issuer: '0xissuerpk123456',
+      invoiceCount: 1n,
+      settledCount: 0n,
+      nullifiers: new Set()
+    };
+
+    // First settlement
+    const candidateRoot = merkleRootFrom(leaf, path, directions);
+    assert.equal(candidateRoot, ledgerState.invoiceRoot, 'Valid invoice proof must match registered root');
+
+    const nullifier = nullifierOf(secret);
+    assert.equal(ledgerState.nullifiers.has(nullifier), false, 'Nullifier must not yet be spent');
+
+    ledgerState.nullifiers.add(nullifier);
+    ledgerState.settledCount += 1n;
+
+    assert.equal(ledgerState.settledCount, 1n);
+    assert.equal(ledgerState.nullifiers.has(nullifier), true);
+
+    // Attempt double-settlement
+    const isDoubleSpend = ledgerState.nullifiers.has(nullifier);
+    assert.equal(isDoubleSpend, true, 'Subsequent settlement attempt must be rejected');
+  });
+
+  it('Circuit getInvoiceStats: Returns on-chain tuple [invoiceRoot, invoiceCount, settledCount]', () => {
+    const ledgerState = {
+      invoiceRoot: '0x9999999999999999999999999999999999999999999999999999999999999999',
+      invoiceCount: 42n,
+      settledCount: 18n
+    };
+
+    const stats = [ledgerState.invoiceRoot, ledgerState.invoiceCount, ledgerState.settledCount];
+    assert.equal(stats[0], ledgerState.invoiceRoot);
+    assert.equal(stats[1], 42n);
+    assert.equal(stats[2], 18n);
   });
 });

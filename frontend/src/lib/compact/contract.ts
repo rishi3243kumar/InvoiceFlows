@@ -1,78 +1,71 @@
 // ==============================================================================
 // Compiled Compact Contract Bindings for InvoiceFlow on Midnight Network
-// Target: Midnight Preprod (Standard Compact ABI v0.18+)
+// Target: Midnight Preprod (Compact Smart Contract Standard v0.15+)
+// Source: contracts/compact/invoice_flow.compact
 // ==============================================================================
 
-export interface InvoicePublicMetadata {
-  dueTimestamp: bigint;
-  riskTier: number;
-  isSettled: boolean;
-  registeredAt: bigint;
+export type HexString = string;
+export type Bytes32 = Uint8Array | string;
+
+export interface InvoiceWitnesses {
+  invoiceSecret: () => Bytes32;
+  secretKey: () => Bytes32;
+  merklePath: () => Bytes32[]; // Vector<5, Bytes<32>>
+  pathDirections: () => boolean[]; // Vector<5, Boolean>
 }
 
-export interface MerklePath {
-  leafIndex: number;
-  pathElements: string[]; // 32-byte hex strings
-  pathIndices: boolean[];
-}
-
-export interface InvoicePrivateWitnesses {
-  getPrivateInvoiceSecret: () => string;
-  getInvoiceAmount: () => bigint;
-  getInvoiceSalt: () => string;
-  getMerklePath: () => MerklePath;
+export interface InvoiceFlowPrivateState {
+  readonly secret: Bytes32;
+  readonly secretKey: Bytes32;
+  readonly merklePath: Bytes32[];
+  readonly pathDirections: boolean[];
 }
 
 export interface InvoiceFlowLedgerState {
-  merkleRoot: string;
-  nullifiers: Record<string, boolean>;
-  invoiceCount: number;
-  totalSettledVolume: bigint;
-  invoiceRegistrations: Record<string, InvoicePublicMetadata>;
-  clientReputations: Record<string, number>;
+  invoiceRoot: string;
+  issuer: string;
+  invoiceCount: bigint;
+  settledCount: bigint;
+  nullifiers: Set<string>;
 }
 
 export interface ContractDeploymentResult {
   contractAddress: string;
   deployTxHash: string;
   blockHeight: number;
-  initialMerkleRoot: string;
+  initialRoot: string;
 }
 
-// Compact Compiled Contract Descriptor
+// Compact Compiled Contract Descriptor matching invoice_flow.compact
 export const InvoiceFlowContract = {
   name: 'InvoiceFlow',
-  version: '0.18.2',
+  version: '0.15.0',
   circuits: {
-    initialize: {
-      params: ['initialRoot: Bytes<32>'],
+    registerInvoiceRoot: {
+      params: ['newRoot: Bytes<32>'],
       returnType: 'Void',
     },
-    tokenizeInvoice: {
-      params: [
-        'invoiceIdHash: Bytes<32>',
-        'commitment: Bytes<32>',
-        'newMerkleRoot: Bytes<32>',
-        'dueTimestamp: Uint<64>',
-        'riskTier: Uint<8>'
-      ],
+    verifyAndSettleInvoice: {
+      params: [],
       returnType: 'Void',
     },
-    proveAccess: {
-      params: [
-        'clientPubkey: Bytes<32>',
-        'claimedInvoiceId: Bytes<32>'
-      ],
-      returnType: 'Bytes<32>', // Returns nullifier hash
-    },
-    settleInvoice: {
-      params: [
-        'invoiceIdHash: Bytes<32>',
-        'nullifier: Bytes<32>',
-        'settledAmount: Uint<64>',
-        'clientHash: Bytes<32>'
-      ],
-      returnType: 'Void',
+    getInvoiceStats: {
+      params: [],
+      returnType: '[Bytes<32>, Uint<64>, Uint<64>]',
     }
+  },
+  witnesses: [
+    'invoiceSecret(): Bytes<32>',
+    'secretKey(): Bytes<32>',
+    'merklePath(): Vector<5, Bytes<32>>',
+    'pathDirections(): Vector<5, Boolean>'
+  ],
+  ledger: {
+    invoiceRoot: 'Bytes<32>',
+    issuer: 'ZswapCoinPublicKey',
+    invoiceCount: 'Counter',
+    settledCount: 'Counter',
+    nullifiers: 'Set<Bytes<32>>'
   }
 };
+

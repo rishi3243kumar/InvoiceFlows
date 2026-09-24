@@ -1,112 +1,104 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import * as crypto from 'node:crypto';
 
-// Helper cryptographic functions for testing Compact circuit logic
-async function sha256(str) {
-  const buf = new TextEncoder().encode(str);
-  const digest = await crypto.subtle.digest('SHA-256', buf);
-  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function computeCommitment(secret, amount, clientPubKey, salt) {
-  const hash = await sha256(`COMMITMENT_${secret}_${amount}_${clientPubKey}_${salt}`);
-  return `0x${hash}`;
-}
-
-async function computeNullifier(secret, salt) {
-  const hash = await sha256(`NULLIFIER_${secret}_${salt}_INVOICEFLOW_NULLIFIER`);
-  return `0x${hash}`;
-}
-
-function verifyMerkleMembership(leaf, root, pathElements, pathIndices) {
-  let current = leaf;
-  for (let i = 0; i < pathElements.length; i++) {
-    // Deterministic simulation of Compact Merkle proof check
-    if (pathIndices[i]) {
-      current = `0x${current.slice(2, 10)}${pathElements[i].slice(2, 10)}`;
-    } else {
-      current = `0x${pathElements[i].slice(2, 10)}${current.slice(2, 10)}`;
-    }
-  }
-  return true;
-}
-
-describe('InvoiceFlow Midnight Compact ZK Circuit Tests', () => {
+describe('Frontend Midnight Compact ZK Circuit & Contract Integration Tests', () => {
   
-  // Test 1: Selective Disclosure & Leaf Commitment
-  it('Test 1: should generate verifiable leaf commitment without leaking private values', async () => {
+  async function sha256(data) {
+    const buf = typeof data === 'string' ? Buffer.from(data, 'utf8') : data;
+    return crypto.createHash('sha256').update(buf).digest('hex');
+  }
+
+  async function leafOf(secret) {
+    const padTag = Buffer.alloc(32);
+    padTag.write('invoiceflow:leaf', 'utf8');
+    const secretBuf = Buffer.from(secret, 'utf8');
+    const combined = Buffer.concat([padTag, secretBuf]);
+    const hash = await sha256(combined);
+    return `0x${hash}`;
+  }
+
+  async function nullifierOf(secret) {
+    const padTag = Buffer.alloc(32);
+    padTag.write('invoiceflow:null', 'utf8');
+    const secretBuf = Buffer.from(secret, 'utf8');
+    const combined = Buffer.concat([padTag, secretBuf]);
+    const hash = await sha256(combined);
+    return `0x${hash}`;
+  }
+
+  async function merkleRootFrom(leaf, path, directions) {
+    let current = leaf;
+    for (let i = 0; i < 5; i++) {
+      const p = path[i];
+      const combined = directions[i] ? `${p}${current}` : `${current}${p}`;
+      current = `0x${await sha256(combined)}`;
+    }
+    return current;
+  }
+
+  it('Test 1: Selective Disclosure - leafOf produces deterministic commitment hiding private secret', async () => {
     const secret = 'sec_zk_secret_987654';
-    const privateAmount = 50000;
-    const clientKey = 'mn1q8u3kvfm89dcj4e6tr25ha7kp92k';
-    const salt = 'salt_random_1725350400';
+    const commitment1 = await leafOf(secret);
+    const commitment2 = await leafOf(secret);
+    const alteredCommitment = await leafOf('sec_zk_secret_different');
 
-    const commitment1 = await computeCommitment(secret, privateAmount, clientKey, salt);
-    const commitment2 = await computeCommitment(secret, privateAmount, clientKey, salt);
-    const tamperedCommitment = await computeCommitment(secret, 99999, clientKey, salt);
-
-    assert.equal(commitment1, commitment2, 'Identical private inputs must produce identical deterministic commitments');
-    assert.notEqual(commitment1, tamperedCommitment, 'Altered amounts must produce distinct cryptographic commitments');
-    assert.ok(commitment1.startsWith('0x'), 'Commitment must be valid hex bytes');
+    assert.equal(commitment1, commitment2, 'Identical secrets must produce identical commitments');
+    assert.notEqual(commitment1, alteredCommitment, 'Altered secrets must produce distinct commitments');
+    assert.ok(commitment1.startsWith('0x'), 'Commitment must be hex-encoded');
   });
 
-  // Test 2: proveAccess Circuit Merkle Path Verification
-  it('Test 2: should prove Merkle membership inside proveAccess circuit', async () => {
+  it('Test 2: Compact Vector<5> Merkle verification for verifyAndSettleInvoice', async () => {
     const secret = 'sec_zk_secret_987654';
-    const privateAmount = 50000;
-    const clientKey = 'mn1q8u3kvfm89dcj4e6tr25ha7kp92k';
-    const salt = 'salt_random_1725350400';
-
-    const leaf = await computeCommitment(secret, privateAmount, clientKey, salt);
-    const mockRoot = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
-    const pathElements = [
+    const leaf = await leafOf(secret);
+    const path = [
       '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-      '0xfedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210'
+      '0xfedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210',
+      '0x111122223333444455556666777788889999aaaabbbbccccddddeeeeffff0000',
+      '0xaaaabbbbccccddddeeeeffff0000111122223333444455556666777788889999',
+      '0x1234123412341234123412341234123412341234123412341234123412341234'
     ];
-    const pathIndices = [false, true];
+    const directions = [false, true, false, true, false];
 
-    const isValid = verifyMerkleMembership(leaf, mockRoot, pathElements, pathIndices);
-    assert.equal(isValid, true, 'Valid Merkle proof must verify successfully');
+    const root = await merkleRootFrom(leaf, path, directions);
+    assert.ok(root.startsWith('0x'), 'Root must be a valid hex string');
+    assert.equal(root.length, 66);
   });
 
-  // Test 3: Nullifier Uniqueness & Double-Financing Prevention
-  it('Test 3: should enforce unique deterministic nullifiers to prevent double-spending', async () => {
+  it('Test 3: Nullifier Set prevents double-spending across transactions', async () => {
     const secret = 'sec_invoice_unique_key';
-    const salt = 'salt_invoice_unique_salt';
-
-    const nullifier = await computeNullifier(secret, salt);
+    const nullifier = await nullifierOf(secret);
     
-    // Simulate Compact on-chain spent map
-    const nullifierRegistry = new Map();
+    const onChainNullifiers = new Set();
     
-    // First verification / settlement
-    assert.equal(nullifierRegistry.has(nullifier), false, 'Nullifier must initially be unspent');
-    nullifierRegistry.set(nullifier, true);
+    assert.equal(onChainNullifiers.has(nullifier), false, 'Nullifier must initially be unspent');
+    onChainNullifiers.add(nullifier);
     
-    // Second attempt (Double-spend attempt)
-    const isDoubleSpend = nullifierRegistry.get(nullifier) === true;
-    assert.equal(isDoubleSpend, true, 'Attempted replay must be detected by on-chain nullifier map');
+    const isDoubleSpend = onChainNullifiers.has(nullifier);
+    assert.equal(isDoubleSpend, true, 'Subsequent verification attempt must trigger double-spend prevention');
   });
 
-  // Test 4: Selective Disclosure Property Verification
-  it('Test 4: should verify what an observer can and cannot learn from transaction data', async () => {
-    const secret = 'sec_private_margin_alpha';
-    const amount = 75000;
-    const salt = 'salt_shielded_margin';
-    
-    const commitment = await computeCommitment(secret, amount, 'client_A', salt);
-    const nullifier = await computeNullifier(secret, salt);
-
-    // Public observer view
-    const observerKnowledge = {
-      commitment,
-      nullifier,
-      network: 'Midnight Preprod'
+  it('Test 4: Ledger state transition verification for registerInvoiceRoot and verifyAndSettleInvoice', async () => {
+    const state = {
+      invoiceRoot: '0x0000000000000000000000000000000000000000000000000000000000000000',
+      invoiceCount: 0n,
+      settledCount: 0n,
+      nullifiers: new Set()
     };
 
-    // Assert observer cannot reverse private parameters from public outputs
-    assert.ok(!JSON.stringify(observerKnowledge).includes('75000'), 'Amount must NOT be present in public ledger view');
-    assert.ok(!JSON.stringify(observerKnowledge).includes('sec_private_margin_alpha'), 'Private secret must NOT be present in public ledger view');
-    assert.ok(observerKnowledge.commitment.length > 32, 'Commitment must be cryptographic hash');
-  });
+    const newRoot = '0x9999888877776666555544443333222211110000aaaabbbbccccddddeeeeffff';
+    state.invoiceRoot = newRoot;
+    state.invoiceCount += 1n;
 
+    assert.equal(state.invoiceRoot, newRoot);
+    assert.equal(state.invoiceCount, 1n);
+
+    const secret = 'test_secret_for_settlement';
+    const nullifier = await nullifierOf(secret);
+    state.nullifiers.add(nullifier);
+    state.settledCount += 1n;
+
+    assert.equal(state.settledCount, 1n);
+    assert.equal(state.nullifiers.has(nullifier), true);
+  });
 });

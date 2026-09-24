@@ -1,76 +1,124 @@
-import { InvoicePrivateWitnesses, MerklePath } from './contract';
+import { InvoiceWitnesses, Bytes32 } from './contract';
 import * as crypto from 'crypto';
 
 /**
- * Computes Poseidon-compatible 32-byte sha256 leaf commitment
- * H(secret || amount || clientPubkey || salt)
+ * Computes leaf commitment matching invoice_flow.compact:
+ * persistentHash([pad(32, "invoiceflow:leaf"), secret])
  */
-export function computeLeafCommitment(
-  secret: string,
-  amount: bigint,
-  clientPubkey: string,
-  salt: string
+export function leafOf(secret: string | Buffer): string {
+  const hash = crypto.createHash('sha256');
+  const padTag = Buffer.alloc(32);
+  padTag.write('invoiceflow:leaf', 'utf8');
+  
+  hash.update(padTag);
+  const secretBuf = typeof secret === 'string' 
+    ? (secret.startsWith('0x') ? Buffer.from(secret.slice(2), 'hex') : Buffer.from(secret, 'utf8'))
+    : secret;
+  hash.update(secretBuf);
+  return '0x' + hash.digest('hex');
+}
+
+/**
+ * Computes deterministic nullifier matching invoice_flow.compact:
+ * persistentHash([pad(32, "invoiceflow:null"), secret])
+ */
+export function nullifierOf(secret: string | Buffer): string {
+  const hash = crypto.createHash('sha256');
+  const padTag = Buffer.alloc(32);
+  padTag.write('invoiceflow:null', 'utf8');
+  
+  hash.update(padTag);
+  const secretBuf = typeof secret === 'string' 
+    ? (secret.startsWith('0x') ? Buffer.from(secret.slice(2), 'hex') : Buffer.from(secret, 'utf8'))
+    : secret;
+  hash.update(secretBuf);
+  return '0x' + hash.digest('hex');
+}
+
+/**
+ * Computes Merkle root from leaf, 5-element path, and directions matching invoice_flow.compact:
+ * merkleRootFrom(leaf, path, directions)
+ */
+export function merkleRootFrom(
+  leaf: string,
+  path: string[],
+  directions: boolean[]
 ): string {
-  const hash = crypto.createHash('sha256');
-  hash.update(Buffer.from(secret.replace('0x', ''), 'hex'));
-  
-  const amountBuf = Buffer.alloc(8);
-  amountBuf.writeBigUInt64BE(amount);
-  hash.update(amountBuf);
-  
-  hash.update(Buffer.from(clientPubkey.replace('0x', ''), 'hex'));
-  hash.update(Buffer.from(salt.replace('0x', ''), 'hex'));
-  
-  return '0x' + hash.digest('hex');
+  if (path.length !== 5 || directions.length !== 5) {
+    throw new Error('Merkle path and directions must have exactly 5 elements for Vector<5>');
+  }
+
+  let current = leaf;
+  for (let i = 0; i < 5; i++) {
+    const hash = crypto.createHash('sha256');
+    const pathBuf = Buffer.from(path[i].replace('0x', ''), 'hex');
+    const currentBuf = Buffer.from(current.replace('0x', ''), 'hex');
+
+    if (directions[i]) {
+      hash.update(pathBuf);
+      hash.update(currentBuf);
+    } else {
+      hash.update(currentBuf);
+      hash.update(pathBuf);
+    }
+    current = '0x' + hash.digest('hex');
+  }
+  return current;
 }
 
 /**
- * Computes deterministic nullifier
- * N = H(secret || salt || "INVOICEFLOW_NULLIFIER")
+ * Generates a valid 5-level Merkle tree, path, and root for a given invoice secret
  */
-export function computeNullifier(secret: string, salt: string): string {
-  const hash = crypto.createHash('sha256');
-  hash.update(Buffer.from(secret.replace('0x', ''), 'hex'));
-  hash.update(Buffer.from(salt.replace('0x', ''), 'hex'));
-  hash.update(Buffer.from('INVOICEFLOW_NULLIFIER', 'utf8'));
-  return '0x' + hash.digest('hex');
-}
+export function generateMerkleTreeAndWitness(
+  secret: string,
+  leafIndex: number = 0
+): {
+  leaf: string;
+  nullifier: string;
+  root: string;
+  path: string[];
+  directions: boolean[];
+} {
+  const leaf = leafOf(secret);
+  const nullifier = nullifierOf(secret);
+  const path: string[] = [];
+  const directions: boolean[] = [];
 
-/**
- * Generates mock Merkle path for 16-level tree
- */
-export function generateMerklePath(leafIndex: number): MerklePath {
-  const pathElements: string[] = [];
-  const pathIndices: boolean[] = [];
-  
   let currentIndex = leafIndex;
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 5; i++) {
     const siblingHash = crypto.createHash('sha256')
-      .update(`merkle_tree_sibling_seed_${i}_${currentIndex}`)
+      .update(`invoiceflow_tree_level_${i}_sibling_${currentIndex}`)
       .digest('hex');
-    pathElements.push('0x' + siblingHash);
-    pathIndices.push((currentIndex % 2) === 1);
+    path.push('0x' + siblingHash);
+    directions.push((currentIndex % 2) === 1);
     currentIndex = Math.floor(currentIndex / 2);
   }
-  
-  return { leafIndex, pathElements, pathIndices };
+
+  const root = merkleRootFrom(leaf, path, directions);
+
+  return {
+    leaf,
+    nullifier,
+    root,
+    path,
+    directions
+  };
 }
 
 /**
- * Creates client-side private witness provider for Midnight Compact execution
+ * Constructs witness provider object for Midnight Compact execution
  */
 export function createInvoiceWitnesses(
   secret: string,
-  amount: bigint,
-  salt: string,
-  leafIndex: number = 0
-): InvoicePrivateWitnesses {
-  const merklePath = generateMerklePath(leafIndex);
-  
+  secretKey: string,
+  path: string[],
+  directions: boolean[]
+): InvoiceWitnesses {
   return {
-    getPrivateInvoiceSecret: () => secret,
-    getInvoiceAmount: () => amount,
-    getInvoiceSalt: () => salt,
-    getMerklePath: () => merklePath
+    invoiceSecret: () => secret,
+    secretKey: () => secretKey,
+    merklePath: () => path,
+    pathDirections: () => directions
   };
 }
+
