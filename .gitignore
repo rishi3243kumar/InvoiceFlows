@@ -20,4 +20,7 @@ Thumbs.db
 # Scratch and temporary scripts
 scratch/
 *.log
+make_commits.ps1
+commits_log.txt
+
 
