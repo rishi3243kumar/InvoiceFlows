@@ -100,5 +100,7 @@ graph TD
 - **Repository:** [https://github.com/rishi3243kumar/InvoiceFlows](https://github.com/rishi3243kumar/InvoiceFlows)
 - **Live DApp:** [https://invoice-flows.vercel.app/](https://invoice-flows.vercel.app/)
 - **Preprod Contract Address:** `00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406`
-- **Explorer:** [Midnight Explorer Contract Link](https://preprod.midnightexplorer.com/contracts/00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406)
+- **Midnight Explorer:** [Midnight Explorer Contract Link](https://preprod.midnightexplorer.com/contracts/00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406)
+- **Subscan Explorer:** [Subscan Preprod Contract Link](https://midnight-preprod.subscan.io/contract/00646ed78c2a6ac9fcc28cb5db6e6349567995e272ab91486dd9bbc123ef0406)
 - **Official X Profile:** [@InvoiceFlows](https://x.com/InvoiceFlows)
+
